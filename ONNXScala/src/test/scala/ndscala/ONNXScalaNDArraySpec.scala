@@ -139,4 +139,10 @@ class ONNXScalaNDArraySpec extends AnyFlatSpec with Matchers {
     val other: NDArray[Double] = NDArray(ArraySeq(50.0, 80.0), ArraySeq(1,2))
     (arr min other) shouldEqual NDArray(ArraySeq(42.0, 80.0), ArraySeq(1,2))
   }
+
+  "NDArray" should "dot" in {
+    val arr: NDArray[Double] = NDArray(ArraySeq(42.0, 84.0), ArraySeq(1,2))
+    val other: NDArray[Double] = NDArray(ArraySeq(42.0, 84.0), ArraySeq(2,1))
+    (arr dot other) shouldEqual NDArray(ArraySeq(8820.0), ArraySeq(1,1))
+  }
 }
