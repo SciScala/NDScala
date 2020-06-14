@@ -28,20 +28,14 @@ class ONNXScalaOps extends NDArrayOps[NDArray]{
   def rand[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): NDArray[DType] = NDArray(ArraySeq.fill(shape.product)(rng.next[Int]), shape)
 
   //Unary ops
-
-//  def apply(arr: NDArray.NDArray[DType], index: ArraySeq[Int]): NDArray.NDArray[DType]
-
   def reshape[DType : ClassTag: Numeric: IsSupported](arr: NDArray[DType], newShape: ArraySeq[Int]): NDArray[DType] = tensorToNDArray(onnx.Reshape5("reshape", Some(ndArrayToTensor(arr)), 
     Some(ndArrayToTensor(NDArray(newShape.map(x => x.toLong), ArraySeq(newShape.size))))))
   def transpose[DType : ClassTag: Numeric: IsSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Transpose1("transpose", None, Some(ndArrayToTensor(arr))))
   def transpose[DType : ClassTag: Numeric: IsSupported](arr: NDArray[DType], axes: ArraySeq[Int]): NDArray[DType] = tensorToNDArray(onnx.Transpose1("transpose", Some(axes.toArray), Some(ndArrayToTensor(arr)))) 
-
   def round[DType : ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType]  = tensorToNDArray(onnx.Round11("round", Some(ndArrayToTensor(arr))))
-//  def slice[DType >: Int <: Int : ClassTag](arr: NDArray[DType], i: Int): NDArray[DType] = tensorToNDArray(onnx.Slice11("slice", Some(ndArrayToTensor(arr)), 
   //Top-level slice only
   def slice[DType : ClassTag: Numeric: IsSupported](arr: NDArray[DType], start: Int, end: Int): NDArray[DType] = tensorToNDArray(onnx.Slice11("slice", Some(ndArrayToTensor(arr)), Some(ndArrayToTensor(NDArray(ArraySeq(start), ArraySeq(1)))), Some(ndArrayToTensor(NDArray(ArraySeq(end), ArraySeq(1))))))
 
-  //More squeeze?
   def squeeze[DType : ClassTag: Numeric: IsSupported](arr: NDArray[DType], index: ArraySeq[Int]): NDArray[DType] = tensorToNDArray(onnx.Squeeze11("squeeze", Some(index.toArray), Some(ndArrayToTensor(arr))))
   def rank[DType : ClassTag: Numeric: IsSupported](arr: NDArray[DType]): Int = arr.shape.size
   def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType], min: DType, max: DType): NDArray[DType] = tensorToNDArray(onnx.Clip11("clip", Some(ndArrayToTensor(arr)), Some(ndArrayToTensor(NDArray(ArraySeq(min), ArraySeq[Int]()))), Some(ndArrayToTensor(NDArray(ArraySeq(max), ArraySeq[Int]())))))
@@ -67,10 +61,9 @@ class ONNXScalaOps extends NDArrayOps[NDArray]{
   def max[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType], d: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Max8("max", Seq(Some(ndArrayToTensor(arr)), Some(ndArrayToTensor(d)))))
   def min[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType], d: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Min8("min", Seq(Some(ndArrayToTensor(arr)), Some(ndArrayToTensor(d)))))
 
+  def dot[DType : ClassTag: Numeric: IsSupported](arr: NDArray[DType], other: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.MatMul9("matmul", Some(ndArrayToTensor(arr)), Some(ndArrayToTensor(other)))) 
 
-
-def dot[DType : ClassTag: Numeric: IsSupported](arr: NDArray[DType], other: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.MatMul9("matmul", Some(ndArrayToTensor(arr)), Some(ndArrayToTensor(other)))) 
-
+  //TODO: implicit conversions
   private def ndArrayToTensor[DType: ClassTag](arr: NDArray[DType]): Tensor[DType] = {
     TensorFactory.getTensor(arr.data.toArray, arr.shape.toArray)
   }

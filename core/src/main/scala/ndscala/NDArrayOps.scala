@@ -7,7 +7,7 @@ import spire.math._
 
 import simulacrum._
 
-//Backend candidates: TF Java, ND4J (Pure Java/FOSS only), MXNet, scalapy-numpy/tf
+//Backend candidates: TF Java, ND4J(OpenBlas), MXNet, scalapy-numpy/tf, ...
 case class NDArray[DType](data: ArraySeq[DType], shape: ArraySeq[Int])
 
 @typeclass trait NDArrayOps[SomeNDArray[_]] {
@@ -17,7 +17,9 @@ case class NDArray[DType](data: ArraySeq[DType], shape: ArraySeq[Int])
   type IsFloatSupported[T] = Contains[T, FloatSupported]
 
   //TODO: missing ops
-  // numpy does: exp, sqrt, all trig functions, log, dot (to confirm), concat, floor, ceil, square, abs, argmax/min, pad, check others in ONNX
+  // numpy does: arange/range, exp, sqrt, all trig functions, log, 
+  // concat, floor, ceil, square, abs, argmax/min, pad, ...
+  
   //Nullary / factory ops
   def zeros[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): SomeNDArray[DType] 
   def ones[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): SomeNDArray[DType] 
@@ -28,16 +30,12 @@ case class NDArray[DType](data: ArraySeq[DType], shape: ArraySeq[Int])
   def reshape[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType], newShape: ArraySeq[Int]): SomeNDArray[DType]
   def transpose[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
   def transpose[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType], axes: ArraySeq[Int]): SomeNDArray[DType] 
-
   def round[DType : ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
-//  def slice[DType >: Int <: Int : ClassTag](arr: SomeNDArray[DType], i: Int): SomeNDArray[DType]
-  //TODO: broaden slice
+  //TODO: broaden slice, extra sugar for slice, range, squeeze, ...
   def slice[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType], start: Int, end: Int): SomeNDArray[DType]
-
   def squeeze[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType], index: ArraySeq[Int]): SomeNDArray[DType]
   def rank[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType]): Int
   def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType], min: DType, max: DType): SomeNDArray[DType]
-
   def unary_-[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType]) : SomeNDArray[DType]
 
   //Binary NDArray ops
