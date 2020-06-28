@@ -98,6 +98,76 @@ class ONNXScalaNDArraySpec extends AnyFlatSpec with Matchers {
     -arr shouldEqual NDArray(ArraySeq(-42, -84), ArraySeq(1,2))
   }
 
+  "NDArray" should "abs" in {
+    val arr: NDArray[Int] = NDArray(ArraySeq(-42, 84), ArraySeq(1,2))
+    arr.abs shouldEqual NDArray(ArraySeq(42, 84), ArraySeq(1,2))
+  }
+
+  "NDArray" should "ceil" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(-1.5f, 1.2f), ArraySeq(1,2))
+    arr.ceil shouldEqual NDArray(ArraySeq(-1.0f, 2.0f), ArraySeq(1,2))
+  }
+
+  "NDArray" should "floor" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(-1.5f, 1.2f), ArraySeq(1,2))
+    arr.floor shouldEqual NDArray(ArraySeq(-2.0f, 1.0f), ArraySeq(1,2))
+  }
+
+  "NDArray" should "log" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(1.0f, 10.0f), ArraySeq(1,2))
+    arr.log shouldEqual NDArray(ArraySeq(0.0f, 2.30258512f), ArraySeq(1,2))
+  }
+
+  "NDArray" should "exp" in {
+    val arr: NDArray[Double] = NDArray(ArraySeq(-1.0, 0.0, 1.0), ArraySeq(1,3))
+    arr.exp shouldEqual NDArray(ArraySeq(0.3678794411714423, 1.0, 2.718281828459045), ArraySeq(1,3))
+  }
+
+  "NDArray" should "sqrt" in {
+    val arr: NDArray[Double] = NDArray(ArraySeq(1.0, 4.0, 9.0), ArraySeq(1,3))
+    arr.sqrt shouldEqual NDArray(ArraySeq(1.0, 2.0, 3.0), ArraySeq(1,3))
+  }
+
+  "NDArray" should "cos" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(-1.0f, 0.0f, 1.0f), ArraySeq(1,3))
+    arr.cos shouldEqual NDArray(ArraySeq(0.5403023f, 1.0f, 0.5403023f), ArraySeq(1,3))
+  }
+
+  "NDArray" should "sin" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(-1.0f, 0.0f, 1.0f), ArraySeq(1,3))
+    arr.sin shouldEqual NDArray(ArraySeq(-0.84147096f, 0.0f, 0.84147096f), ArraySeq(1,3))
+  }
+
+  "NDArray" should "tan" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(-1.0f, 0.0f, 1.0f), ArraySeq(1,3))
+    arr.tan shouldEqual NDArray(ArraySeq(-1.5574077f, 0.0f, 1.5574077f), ArraySeq(1,3))
+  }
+
+  "NDArray" should "tanh" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(-1.0f, 0.0f, 1.0f), ArraySeq(1,3))
+    arr.tanh shouldEqual NDArray(ArraySeq(-0.7615942f, 0.0f, 0.7615942f), ArraySeq(1,3))
+  }
+
+  "NDArray" should "acos" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(-1.0f, 0.0f, 1.0f), ArraySeq(1,3))
+    arr.acos shouldEqual NDArray(ArraySeq(3.1415927f, 1.5707964f, 0.0f), ArraySeq(1,3))
+  }
+
+  "NDArray" should "asin" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(-1.0f, 0.0f, 1.0f), ArraySeq(1,3))
+    arr.asin shouldEqual NDArray(ArraySeq(-1.5707964f, 0.0f, 1.5707964f), ArraySeq(1,3))
+  }
+
+  "NDArray" should "atan" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(-1.0f, 0.0f, 1.0f), ArraySeq(1,3))
+    arr.atan shouldEqual NDArray(ArraySeq(-0.7853982f, 0.0f, 0.7853982f), ArraySeq(1,3))
+  }
+
+  "NDArray" should "atanh" in {
+    val arr: NDArray[Float] = NDArray(ArraySeq(-0.5f, 0.0f, 0.5f), ArraySeq(1,3))
+    arr.atanh shouldEqual NDArray(ArraySeq(-0.54930615f, 0.0f, 0.54930615f), ArraySeq(1,3))
+  }
+
   "NDArray" should "pow" in {
     val arr: NDArray[Double] = NDArray(ArraySeq(42.0, 84.0), ArraySeq(1,2))
     (arr ** NDArray(ArraySeq(2.0), ArraySeq(1))) shouldEqual NDArray(ArraySeq(1764.0, 7056.0), ArraySeq(1,2))

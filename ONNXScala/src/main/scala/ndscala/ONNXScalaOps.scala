@@ -41,7 +41,28 @@ class ONNXScalaOps extends NDArrayOps[NDArray]{
   def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType], min: DType, max: DType): NDArray[DType] = tensorToNDArray(onnx.Clip11("clip", Some(ndArrayToTensor(arr)), Some(ndArrayToTensor(NDArray(ArraySeq(min), ArraySeq[Int]()))), Some(ndArrayToTensor(NDArray(ArraySeq(max), ArraySeq[Int]())))))
 
   def unary_-[DType : ClassTag: Numeric: IsSupported](arr: NDArray[DType]) : NDArray[DType] = tensorToNDArray(onnx.Sub7("sub", Some(ndArrayToTensor(zeros(arr.shape))), Some(ndArrayToTensor(arr))))
-  
+
+  def abs[DType: ClassTag: Numeric: IsSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Abs6("abs", Some(ndArrayToTensor(arr))))
+  def ceil[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Ceil1("ceil", None, Some(ndArrayToTensor(arr))))
+  def floor[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Floor1("floor", None, Some(ndArrayToTensor(arr))))
+//  def concat[DType: ClassTag: Numeric: IsSupported](arr: NDArray[DType]*): NDArray[DType] = tensorToNDArray(onnx.Concat11("concat", Some(ndArrayToTensor(arr)))))
+  def log[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType]= tensorToNDArray(onnx.Log6("log", Some(ndArrayToTensor(arr))))
+  def exp[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Exp6("exp", Some(ndArrayToTensor(arr))))
+  def sqrt[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Sqrt1("sqrt", None, Some(ndArrayToTensor(arr))))
+  def cos[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Cos7("cos", Some(ndArrayToTensor(arr))))
+  def cosh[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Cosh9("cosh", Some(ndArrayToTensor(arr))))
+  def sin[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Sin7("sin", Some(ndArrayToTensor(arr))))
+  def sinh[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Sinh9("sinh", Some(ndArrayToTensor(arr))))
+  def tan[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Tan7("tan", Some(ndArrayToTensor(arr))))
+  def tanh[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Tanh6("tanh", Some(ndArrayToTensor(arr))))
+  def acos[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Acos7("acos", Some(ndArrayToTensor(arr))))
+  def acosh[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Acosh9("acosh", Some(ndArrayToTensor(arr))))
+  def asin[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Asin7("asin", Some(ndArrayToTensor(arr))))
+  def asinh[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Asinh9("asinh", Some(ndArrayToTensor(arr))))
+  def atan[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Atan7("atan", Some(ndArrayToTensor(arr))))
+  def atanh[DType: ClassTag: Numeric: IsFloatSupported](arr: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Atanh9("atanh", Some(ndArrayToTensor(arr))))
+
+
   //Binary NDArray ops
 
   def +[DType : ClassTag: Numeric: IsSupported](arr: NDArray[DType], other: NDArray[DType]): NDArray[DType] = tensorToNDArray(onnx.Add7("add", Some(ndArrayToTensor(arr)), Some(ndArrayToTensor(other))))

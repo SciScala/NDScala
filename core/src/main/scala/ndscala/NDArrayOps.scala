@@ -17,9 +17,8 @@ case class NDArray[DType](data: ArraySeq[DType], shape: ArraySeq[Int])
   type IsFloatSupported[T] = Contains[T, FloatSupported]
 
   //TODO: missing ops
-  // numpy does: arange/range, exp, sqrt, all trig functions, log, 
-  // concat, floor, ceil, square, abs, argmax/min, pad, ...
-  
+  // numpy does: pad, range, concat, square(Missing), argmax/min
+ 
   //Nullary / factory ops
   def zeros[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): SomeNDArray[DType] 
   def ones[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): SomeNDArray[DType] 
@@ -37,6 +36,24 @@ case class NDArray[DType](data: ArraySeq[DType], shape: ArraySeq[Int])
   def rank[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType]): Int
   def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType], min: DType, max: DType): SomeNDArray[DType]
   def unary_-[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType]) : SomeNDArray[DType]
+
+
+  def abs[DType: ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def ceil[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def floor[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+//  def concat[DType: ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType]*): SomeNDArray[DType]
+  def log[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def exp[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def sqrt[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def cos[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def sin[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def tan[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def tanh[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def acos[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def asin[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def atan[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+  def atanh[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+
 
   //Binary NDArray ops
 
@@ -58,4 +75,5 @@ case class NDArray[DType](data: ArraySeq[DType], shape: ArraySeq[Int])
 
   def max[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType], other: SomeNDArray[DType]): SomeNDArray[DType]
   def min[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType], other: SomeNDArray[DType]): SomeNDArray[DType]
+
 }
