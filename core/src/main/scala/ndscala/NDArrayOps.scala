@@ -8,7 +8,7 @@ import spire.math._
 import simulacrum._
 
 //Backend candidates: TF Java, ND4J(OpenBlas), MXNet, scalapy-numpy/tf, ...
-case class NDArray[DType](data: ArraySeq[DType], shape: ArraySeq[Int])
+//case class NDArray[DType](data: ArraySeq[DType], shape: ArraySeq[Int])
 
 @typeclass trait NDArrayOps[SomeNDArray[_]] {
   type Supported = Union[Int]#or[Long]#or[Float]#or[Double]#create
