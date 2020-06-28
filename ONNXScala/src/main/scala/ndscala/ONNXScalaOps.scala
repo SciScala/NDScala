@@ -63,7 +63,7 @@ class ONNXScalaOps extends NDArrayOps[Tensor]{
   def asin[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = onnx.Asin7("asin", Some(arr))
   def asinh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = onnx.Asinh9("asinh", Some(arr))
   def atan[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = onnx.Atan7("atan", Some(arr))
-  def atanh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = onnx.Atanh9("atanh", Some(arr))
+//  def atanh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = onnx.Atanh9("atanh", Some(arr))
 
 
   //Binary Tensor ops

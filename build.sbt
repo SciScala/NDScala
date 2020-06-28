@@ -21,6 +21,6 @@ lazy val onnxscala = (project in file("ONNXScala"))
   .settings(
     name := "ndscala-onnx-scala",
     libraryDependencies += "org.typelevel" %% "spire" % "0.17.0-M1",
-    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala-backends" % "0.6.0",
+    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala-backends" % "0.5.0",
     libraryDependencies += scalaTest % Test
   )

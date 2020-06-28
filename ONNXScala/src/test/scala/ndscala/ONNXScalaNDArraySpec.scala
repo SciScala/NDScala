@@ -166,11 +166,12 @@ class ONNXScalaTensorSpec extends AnyFlatSpec with Matchers {
     fromTensor(arr.atan) shouldEqual (ArraySeq(-0.7853982f, 0.0f, 0.7853982f), ArraySeq(1,3))
   }
 
+  /*
   "Tensor" should "atanh" in {
     val arr: Tensor[Float] = (ArraySeq(-0.5f, 0.0f, 0.5f), ArraySeq(1,3))
     fromTensor(arr.atanh) shouldEqual (ArraySeq(-0.54930615f, 0.0f, 0.54930615f), ArraySeq(1,3))
   }
-
+*/
   "Tensor" should "pow" in {
     val arr: Tensor[Double] = (ArraySeq(42.0, 84.0), ArraySeq(1,2))
     fromTensor(arr ** (ArraySeq(2.0), ArraySeq(1))) shouldEqual (ArraySeq(1764.0, 7056.0), ArraySeq(1,2))

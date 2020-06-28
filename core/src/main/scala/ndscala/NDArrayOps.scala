@@ -52,7 +52,7 @@ import simulacrum._
   def acos[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
   def asin[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
   def atan[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
-  def atanh[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
+//  def atanh[DType: ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType]): SomeNDArray[DType]
 
 
   //Binary NDArray ops
