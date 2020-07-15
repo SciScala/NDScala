@@ -20,9 +20,9 @@ import simulacrum._
   // numpy does: pad, range, concat, square(Missing), argmax/min
  
   //Nullary / factory ops
-  def zeros[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): SomeNDArray[DType] 
-  def ones[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): SomeNDArray[DType] 
-  def full[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int], value: DType): SomeNDArray[DType]
+//  def zeros[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): SomeNDArray[DType] 
+//  def ones[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): SomeNDArray[DType] 
+//  def full[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int], value: DType): SomeNDArray[DType]
   def rand[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): SomeNDArray[DType]
 
   //Unary ops
@@ -34,7 +34,7 @@ import simulacrum._
   def slice[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType], start: Int, end: Int): SomeNDArray[DType]
   def squeeze[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType], index: ArraySeq[Int]): SomeNDArray[DType]
   def rank[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType]): Int
-  def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType], min: DType, max: DType): SomeNDArray[DType]
+//  def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType], min: DType, max: DType): SomeNDArray[DType]
   def unary_-[DType : ClassTag: Numeric: IsSupported](arr: SomeNDArray[DType]) : SomeNDArray[DType]
 
 

@@ -4,15 +4,15 @@ import scala.collection.immutable.ArraySeq
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.emergentorder.onnx.Tensor
+import org.platanios.tensorflow.api._
 
-class ONNXScalaTensorSpec extends AnyFlatSpec with Matchers {
+class TensorFlowTensorSpec extends AnyFlatSpec with Matchers {
 
-  implicit val ndarrayOps: NDArrayOps[Tensor] = new ONNXScalaOps()
+  implicit val ndarrayOps: NDArrayOps[Tensor] = new TensorFlowOps()
 
   import NDArrayOps.ops._
 
-  import ONNXScalaOps._
+  import TensorFlowOps._
 
   /*
   "Tensor" should "zero" in {
@@ -64,7 +64,7 @@ class ONNXScalaTensorSpec extends AnyFlatSpec with Matchers {
 
   "Tensor" should "transpose" in {
     val arr: Tensor[Int] = (ArraySeq(1, 2, 3, 4), ArraySeq(2,2))
-    fromTensor(arr.transpose) shouldEqual (ArraySeq(1, 3, 2, 4), ArraySeq(2,2))
+    fromTensor(arr.transpose()) shouldEqual (ArraySeq(1, 3, 2, 4), ArraySeq(2,2))
   }
 
   "Tensor" should "transpose with axes" in {
@@ -79,7 +79,7 @@ class ONNXScalaTensorSpec extends AnyFlatSpec with Matchers {
 
   "Tensor" should "slice" in {
     val arr: Tensor[Int] = (ArraySeq(1, 2, 3, 4), ArraySeq(4))
-    fromTensor(arr.slice(1,3)) shouldEqual (ArraySeq(2, 3), ArraySeq(2))
+    fromTensor(ndarrayOps.slice(arr,1,3)) shouldEqual (ArraySeq(2, 3), ArraySeq(2))
   }
 
   "Tensor" should "squeeze" in {
@@ -125,7 +125,7 @@ class ONNXScalaTensorSpec extends AnyFlatSpec with Matchers {
 
   "Tensor" should "exp" in {
     val arr: Tensor[Double] = (ArraySeq(-1.0, 0.0, 1.0), ArraySeq(1,3))
-    fromTensor(arr.exp) shouldEqual (ArraySeq(0.3678794411714423, 1.0, 2.718281828459045), ArraySeq(1,3))
+    fromTensor(arr.exp) shouldEqual (ArraySeq(0.36787944117144233, 1.0, 2.718281828459045), ArraySeq(1,3))
   }
 
   "Tensor" should "sqrt" in {
@@ -207,18 +207,18 @@ class ONNXScalaTensorSpec extends AnyFlatSpec with Matchers {
   "Tensor" should "max" in {
     val arr: Tensor[Float] = (ArraySeq(42.0f, 84.0f), ArraySeq(1,2))
     val other: Tensor[Float] = (ArraySeq(50.0f, 80.0f), ArraySeq(1,2))
-    fromTensor(arr max other) shouldEqual (ArraySeq(50.0f, 84.0f), ArraySeq(1,2))
+    fromTensor(arr maximum other) shouldEqual (ArraySeq(50.0f, 84.0f), ArraySeq(1,2))
   }
 
   "Tensor" should "min" in {
     val arr: Tensor[Double] = (ArraySeq(42.0, 84.0), ArraySeq(1,2))
     val other: Tensor[Double] = (ArraySeq(50.0, 80.0), ArraySeq(1,2))
-    fromTensor(arr min other) shouldEqual (ArraySeq(42.0, 80.0), ArraySeq(1,2))
+    fromTensor(arr minimum other) shouldEqual (ArraySeq(42.0, 80.0), ArraySeq(1,2))
   }
 
   "Tensor" should "dot" in {
     val arr: Tensor[Double] = (ArraySeq(42.0, 84.0), ArraySeq(1,2))
     val other: Tensor[Double] = (ArraySeq(42.0, 84.0), ArraySeq(2,1))
-    fromTensor(arr dot other) shouldEqual (ArraySeq(8820.0), ArraySeq(1,1))
+    fromTensor(arr dot other) shouldEqual (ArraySeq(8820.0), ArraySeq())
   }
 }

@@ -24,3 +24,12 @@ lazy val onnxscala = (project in file("ONNXScala"))
     libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala-backends" % "0.5.0",
     libraryDependencies += scalaTest % Test
   )
+
+lazy val tensorflow = (project in file("TensorFlow"))
+  .dependsOn(core)
+  .settings(
+    name := "ndscala-tensorflow",
+    libraryDependencies += "org.typelevel" %% "spire" % "0.17.0-M1",
+    libraryDependencies += "org.platanios" %% "tensorflow" % "0.5.1-SNAPSHOT" classifier "linux-cpu-x86_64", 
+    libraryDependencies += scalaTest % Test
+  )
