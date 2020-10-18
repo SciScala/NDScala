@@ -25,15 +25,20 @@ lazy val onnxscala = (project in file("ONNXScala"))
     libraryDependencies += scalaTest % Test
   )
 
+def tensorflowOSClassifier: String = System.getProperty("os.name").toLowerCase match {
+    case mac if mac.contains("mac")  => "darwin"
+    case win if win.contains("win") => "windows"
+    case linux if linux.contains("linux") => "linux"
+    case osName => throw new RuntimeException(s"Unknown operating system $osName")
+}
+
 lazy val tensorflow = (project in file("TensorFlow"))
   .dependsOn(core)
   .settings(
-    name := "ndscala-tensorflow",
-    libraryDependencies += "org.typelevel" %% "spire" % "0.17.0",
-//TF-scala 0.5.7 broken, 0.5.1-SNAPSHOT with correct classifier works
-    libraryDependencies += "org.platanios" %% "tensorflow" % "0.5.1-SNAPSHOT" classifier "linux-cpu-x86_64",
-
-    libraryDependencies += scalaTest % Test
+      name := "ndscala-tensorflow",
+      libraryDependencies += "org.typelevel" %% "spire" % "0.17.0",
+      libraryDependencies += "org.platanios" %% "tensorflow" % "0.5.7" classifier tensorflowOSClassifier,
+      libraryDependencies += scalaTest % Test
   )
 
 lazy val djl = (project in file("DJL"))
@@ -42,8 +47,8 @@ lazy val djl = (project in file("DJL"))
     name := "ndscala-djl",
     libraryDependencies += "org.typelevel" %% "spire" % "0.17.0",
     libraryDependencies += "ai.djl" % "api" % "0.8.0",
-    libraryDependencies += "ai.djl.mxnet" % "mxnet-engine" % "0.8.0", 
-    libraryDependencies += "ai.djl.mxnet" % "mxnet-native-auto" % "1.7.0-backport", 
+    libraryDependencies += "ai.djl.mxnet" % "mxnet-engine" % "0.8.0",
+    libraryDependencies += "ai.djl.mxnet" % "mxnet-native-auto" % "1.7.0-backport",
 
     libraryDependencies += scalaTest % Test
   )
