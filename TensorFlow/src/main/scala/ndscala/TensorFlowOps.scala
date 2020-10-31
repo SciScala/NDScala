@@ -1,88 +1,108 @@
 package org.sciscala.ndscala 
 
 import scala.util.Random
-import scala.collection.immutable.ArraySeq
 import scala.reflect.ClassTag
+import scala.language.implicitConversions
 import spire.random.Dist
 import spire.math.Numeric
-import spire.implicits._
+//import spire.implicits._
 import org.sciscala.ndscala.union._
 //import org.platanios.tensorflow.api.tensors._
 //import org.platanios.tensorflow.api.core.types._
 //import org.platanios.tensorflow.api.core._
 import org.platanios.tensorflow.api._
+//import org.platanios.tensorflow.api.tensors.ops.Math._ 
+
 
 object TensorFlowOps {
 //  implicit def convert[DType: ClassTag: TF](d: DType): Tensor[DType] = Tensor(d) 
-  implicit def toTensor[DType: ClassTag: TF](t: (ArraySeq[DType], ArraySeq[Int])): Tensor[DType] = Tensor(t._1).reshape(Shape(t._2: _*))
-  implicit def fromTensor[DType: ClassTag: TF](t: Tensor[DType]): (ArraySeq[DType], ArraySeq[Int]) = (ArraySeq(t.toArray: _*) , ArraySeq(t.shape.toArray: _*)) 
+  implicit def toTFTensor[DType: ClassTag: TF](t: (Array[DType], Array[Int])): Tensor[DType] = Tensor(t._1).reshape(Shape(t._2: _*))
+  implicit def fromTFTensor[DType: ClassTag: TF](t: Tensor[DType]): (Array[DType], Array[Int]) = (Array(t.toArray: _*) , Array(t.shape.toArray: _*)) 
 }
 
-class TensorFlowOps extends NDArrayOps[Tensor]{
-  import TensorFlowOps._
 
+//WTF infinite recursion
+given NDArrayOps[Tensor]{
+//  import TensorFlowOps._
+
+//import org.platanios.tensorflow.api.tensors.ops.Math._ 
+//  implicit def toTensor[DType: ClassTag: TF](t: (Array[DType], Array[Int])): Tensor[DType] = Tensor(t._1).reshape(Shape(t._2: _*))
+//  implicit def fromTensor[DType: ClassTag: TF](t: Tensor[DType]): (Array[DType], Array[Int]) = (Array(t.toArray: _*) , Array(t.shape.toArray: _*)) 
   //Nullary / factory ops
-  def zeros[DType : ClassTag: Numeric: IsSupported: TF](shape: ArraySeq[Int]): Tensor[DType] = Tensor.zeros[DType](Shape(shape: _*))
-  def ones[DType : ClassTag: Numeric: IsSupported: TF](shape: ArraySeq[Int]): Tensor[DType] = Tensor.ones[DType](Shape(shape: _*)) 
-  def full[DType : ClassTag: Numeric: IsSupported: TF](shape: ArraySeq[Int], value: DType): Tensor[DType] = Tensor.fill(Shape(shape: _*))(value)
+  def zeros[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int]): Tensor[DType] = ??? //broken: needs tf type in sig Tensor.zeros[DType](Shape(shape: _*))
+  def ones[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int]): Tensor[DType] = ??? //broken: Tensor.ones[DType](Shape(shape: _*)) 
+  def full[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int], value: DType): Tensor[DType] = ??? //broken: Tensor.fill(Shape(shape: _*))(value)
 
   
   //TODO: fix rand
-  def rand[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): Tensor[DType] = ???
+//  def rand[DType <: Supported : ClassTag: Numeric](shape: Array[Int]): Tensor[DType] = ???
 
   //Unary ops
-  def reshape[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], newShape: ArraySeq[Int]): Tensor[DType] = arr.reshape(newShape)
-  def transpose[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType]): Tensor[DType] = arr.transpose()
-  def transpose[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], axes: ArraySeq[Int]): Tensor[DType] = arr.transpose(Shape(axes: _*))
-  def round[DType : ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType]  = arr.round
+  //caution: infinite
+  extension[DType <: Supported : ClassTag : IsSupported](arr: Tensor[DType]) def reShape(newShape: Array[Int]): Tensor[DType] = arr.reshape(Shape(newShape).asArray)
+  extension[DType <: Supported : ClassTag : IsSupported](arr: Tensor[DType]) def transpose: Tensor[DType] = arr.transpose()
+  //caution: infinite
+  extension[DType <: Supported : ClassTag : IsSupported](arr: Tensor[DType]) def transpose(axes: Array[Int], dummy: Option[Boolean]): Tensor[DType] = arr.transpose(Shape(axes: _*))
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]) def round(): Tensor[DType]  = arr.round
   //Top-level slice only
-  def slice[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], start: Int, end: Int): Tensor[DType] = arr(start :: end)
+  extension[DType <: Supported : ClassTag: IsSupported](arr: Tensor[DType]) def slice(start: Int, end: Int, dummy: Option[Boolean]): Tensor[DType] = arr(start :: end)
 
-  def squeeze[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], index: ArraySeq[Int]): Tensor[DType] = arr.squeeze(index)
+  //Caution: infinite
 
-  def rank[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType]): Int = arr.rank
+  extension[DType <: Supported : ClassTag : IsSupported](arr: Tensor[DType]) def squeeze: Tensor[DType] = arr.squeeze(Array(0)) 
+  extension[DType <: Supported : ClassTag: IsSupported](arr: Tensor[DType]) def squeeze(index: Array[Int], dummy: Option[Boolean]): Tensor[DType] =  arr.squeeze(index)
+
+  extension[DType <: Supported : ClassTag: IsSupported](arr: Tensor[DType]) def rank: Int = arr.rank
 //  def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType], min: DType, max: DType): Tensor[DType] = arr.clip(min, max) 
 
-  def unary_-[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType]) : Tensor[DType] = - arr 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def unary_- : Tensor[DType] = - arr 
 
-  def abs[DType: ClassTag: Numeric: IsSupported](arr: Tensor[DType]): Tensor[DType] = arr.abs 
-  def ceil[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.ceil
-  def floor[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.floor 
-//  def concat[DType: ClassTag: Numeric: IsSupported](arr: Tensor[DType]*): Tensor[DType] = onnx.Concat11("concat", Some(ndArrayToTensor(arr)))))
-  def log[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType]= arr.log 
-  def exp[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.exp
-  def sqrt[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.sqrt
-  def cos[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.cos
-  def cosh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.cosh
-  def sin[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.sin
-  def sinh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.sinh
-  def tan[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.tan
-  def tanh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.tanh
-  def acos[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.acos
-  def acosh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.acosh
-  def asin[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.asin
-  def asinh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.asinh
-  def atan[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.atan
-//  def atanh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = onnx.Atanh9("atanh", Some(arr))
+//  def concat[DType <: Supported : ClassTag : IsSupported](axis: Int, arr: Seq[Tensor[DType]]): Tensor[DType] = ???
+//  def mean[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported](arr: Seq[Tensor[DType]]): Tensor[DType] = ???
+
+  //Below calls not valid, infinite recursion.. need to specialize?
+  //Also, time to get rid of classtag"?
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported](arr: Tensor[DType]) def abs(): Tensor[DType] = arr.abs
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def ceil(): Tensor[DType] = arr.ceil
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def floor(): Tensor[DType] = arr.floor 
+
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def log(): Tensor[DType]= arr.log 
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def exp(): Tensor[DType] = arr.exp
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def sqrt(): Tensor[DType] = arr.sqrt
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def cos(): Tensor[DType] = arr.cos
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def cosh(): Tensor[DType] = arr.cosh
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def sin(): Tensor[DType] = arr.sin
+  extension[DType <:FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def sinh(): Tensor[DType] = arr.sinh
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def tan(): Tensor[DType] = arr.tan
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def tanh(): Tensor[DType] = arr.tanh
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def acos(): Tensor[DType] = arr.acos
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def acosh(): Tensor[DType] = arr.acosh
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def asin(): Tensor[DType] = arr.asin
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def asinh(): Tensor[DType] = arr.asinh
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def atan(): Tensor[DType] = arr.atan
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported](arr: Tensor[DType]) def atanh(): Tensor[DType] = arr.atanh
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def sigmoid(): Tensor[DType] = ???
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def relu(): Tensor[DType] = ???
 
   //Binary Tensor ops
 
-  def +[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr + other 
-  def -[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr - other
-  def *[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr * other 
-  def **[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr ** other 
-  def /[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr / other
-  def %[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr % other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def + (other: Tensor[DType]): Tensor[DType] = arr + other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def - (other: Tensor[DType]): Tensor[DType] = arr - other
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def * (other: Tensor[DType]): Tensor[DType] = arr * other 
+  extension[DType <: NumericSupported :  ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def ** (other: Tensor[DType]): Tensor[DType] = arr ** other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def / (other: Tensor[DType]): Tensor[DType] = arr / other
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def % (other: Tensor[DType]): Tensor[DType] = arr % other 
 
-  def >[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr > other 
-  def >=[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr >= other 
-  def <[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr < other 
-  def <=[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr <= other 
-  def ===[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr === other 
-  def !==[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr =!= other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def > (other: Tensor[DType]): Tensor[Boolean] = arr > other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def >= (other: Tensor[DType]): Tensor[Boolean] = arr >= other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def < (other: Tensor[DType]): Tensor[Boolean] = arr < other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def <= (other: Tensor[DType]): Tensor[Boolean] = arr <= other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def ==== (other: Tensor[DType]): Tensor[Boolean] = arr === other 
+    // arr === other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def !=== (other: Tensor[DType]): Tensor[Boolean] = arr =!= other 
 
-  def max[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType], d: Tensor[DType]): Tensor[DType] = arr maximum d 
-  def min[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType], d: Tensor[DType]): Tensor[DType] = arr minimum d 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def max (d: Tensor[DType]): Tensor[DType] = arr maximum d 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def min (d: Tensor[DType]): Tensor[DType] = arr minimum d 
 
-  def dot[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr tensorDot (other, arr.rank)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](arr: Tensor[DType]) def matmul (other: Tensor[DType]): Tensor[DType] = arr tensorDot (other, arr.rank)
 }
