@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import ONNXScalaOps._
 
-val iters = 50 //5 Bumped to test mem leaks
+val iters = 5
 
 val arrX:Array[Float] = ((0 until 100000000).toArray).map(_.toFloat)
 val arrY:Array[Float] = ((0 until 10000).toArray).map(_.toFloat)
