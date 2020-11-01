@@ -18,15 +18,15 @@ val arrY:Array[Float] = ((0 until 10000).toArray).map(_.toFloat)
 val arrW0:Array[Float] = ((0 until 100000000).toArray).map(_.toFloat)
 val arrW1:Array[Float] = ((0 until 10000).toArray).map(_.toFloat)
 
-val x = (arrX, Array(10000,10000))
-val y  = (arrY, Array(10000,1))
+val x = Tensor(arrX, Array(10000,10000))
+val y  = Tensor(arrY, Array(10000,1))
 
 //TODO: call recursively
 
-val w0 = (arrW0, Array(10000,10000))
-val w1 = (arrW1, Array(10000,1))
+val w0 = Tensor(arrW0, Array(10000,10000))
+val w1 = Tensor(arrW1, Array(10000,1))
 
-val one = (Array(1.0f), Array(1))
+val one = Tensor(Array(1.0f), Array(1))
 
 def train = {
 //     val future = async {

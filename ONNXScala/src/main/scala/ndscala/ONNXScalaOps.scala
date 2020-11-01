@@ -13,9 +13,9 @@ import org.emergentorder.onnx.backends.ORTOperatorBackendAll
 
 object ONNXScalaOps {
 
-  implicit def convert[DType <: Supported : ClassTag](d: DType): Tensor[DType] = TensorFactory.getTensor(Array(d).toArray, Array(1).toArray)
-  implicit def toTensor[DType <: Supported : ClassTag](t: (Array[DType], Array[Int])): Tensor[DType] = TensorFactory.getTensor(t._1.toArray, t._2.toArray)
-  implicit def fromTensor[DType <: Supported : ClassTag](t: Tensor[DType]): (Array[DType], Array[Int]) = (t._1, t._2)
+  implicit def convert[DType <: Supported : ClassTag](d: DType): Tensor[DType] = Tensor(Array(d).toArray, Array(1).toArray)
+  implicit def toTensor[DType <: Supported : ClassTag](t: (Array[DType], Array[Int])): Tensor[DType] = Tensor(t._1.toArray, t._2.toArray)
+  implicit def fromTensor[DType <: Supported : ClassTag](t: Tensor[DType]): (Array[DType], Array[Int]) = (getArrayFromOnnxTensor(t.onnxTensor), t.onnxTensor.getInfo.getShape.map(_.toInt))
 
 }
 
@@ -103,9 +103,9 @@ given NDArrayOps[Tensor]{
   val rng = spire.random.rng.Cmwc5()
 
   //Nullary / factory ops
-  def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int]): Tensor[DType] = (Array.fill(shape.product)(implicitly[Numeric[DType]].zero), shape)
-  def ones[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int]): Tensor[DType] = (Array.fill(shape.product)(implicitly[Numeric[DType]].one), shape)
-  def full[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int], value: DType): Tensor[DType] = (Array.fill(shape.product)(value), shape)
+  def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int]): Tensor[DType] = Tensor(Array.fill(shape.product)(implicitly[Numeric[DType]].zero), shape)
+  def ones[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int]): Tensor[DType] = Tensor(Array.fill(shape.product)(implicitly[Numeric[DType]].one), shape)
+  def full[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int], value: DType): Tensor[DType] = Tensor(Array.fill(shape.product)(value), shape)
  
   //TODO: fix rand
 //  def rand[DType <: Supported : ClassTag: Numeric](shape: Array[Int]): Tensor[DType] = ???
@@ -113,20 +113,20 @@ given NDArrayOps[Tensor]{
   //Unary ops
 //  def reshape[DType <: Supported : ClassTag: Numeric](arr: Tensor[DType], newShape: Array[Int]): Tensor[DType] 
   extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def reShape(newShape: Array[Int]): Tensor[DType] = onnx.ReshapeV5("reshape", arr,
-    (newShape.toArray.map(x => x.toLong), Array(newShape.size)))
+    Tensor(newShape.toArray.map(x => x.toLong), Array(newShape.size)))
 
   extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def transpose: Tensor[DType] = onnx.TransposeV1("transpose", None, arr)
   extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def transpose(axes: Array[Int], dummy: Option[Boolean]): Tensor[DType] = onnx.TransposeV1("transpose", Some(axes.toArray), arr)
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def round(): Tensor[DType]  = onnx.RoundV11("round", arr)
   //Top-level slice only
-  extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def slice(start: Int, end: Int, dummy: Option[Boolean]): Tensor[DType] = onnx.SliceV11[DType, Int]("slice", arr, (Array(start), Array(1)), (Array(end), Array(1)))
+  extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def slice(start: Int, end: Int, dummy: Option[Boolean]): Tensor[DType] = onnx.SliceV11[DType, Int]("slice", arr, Tensor(Array(start), Array(1)), Tensor(Array(end), Array(1)))
 
   extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def squeeze(index: Array[Int], dummy: Option[Boolean]): Tensor[DType] = onnx.SqueezeV11("squeeze",Some(index.toArray),arr)
-  extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def rank: Int = arr._2.size
+  extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def rank: Int = arr.onnxTensor.getInfo.getShape.size
 
   //extension[DType <: FloatSupported : ClassTag: Numeric] (arr: Tensor[DType]) def clip(min: DType, max: DType): Tensor[DType] = onnx.ClipV11("clip", arr,None, None)
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def unary_- : Tensor[DType] = onnx.SubV7("sub", zeros(arr._2), arr)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def unary_- : Tensor[DType] = onnx.SubV7("sub", zeros(arr.onnxTensor.getInfo.getShape.map(_.toInt)), arr)
 
   
   extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported] (arr: Tensor[DType]) def abs(): Tensor[DType] = onnx.AbsV6("abs", arr)
