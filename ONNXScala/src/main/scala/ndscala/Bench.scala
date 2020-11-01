@@ -40,8 +40,8 @@ def train = {
 
   //Simulate in-place += op here
  
-      println(w1 + ((l1.transpose) matmul l2Delta) )
-      println(w0 + ((x.transpose) matmul l1Delta))
+      val res0 = w1 + ((l1.transpose) matmul l2Delta) 
+      val res1 = w0 + ((x.transpose) matmul l1Delta)
 }
 
 val before = System.nanoTime; for (j <- 0 until iters) {
