@@ -10,7 +10,7 @@ import ONNXScalaOps._
 import DJLOps._
 
 object Mix extends App{
-val a: org.platanios.tensorflow.api.Tensor[Int] = Tensor[Int](1, 2)
+val a: org.platanios.tensorflow.api.Tensor[Int] = (Array(1,2), Array(1,2)) 
 val b: org.emergentorder.onnx.Tensors.Tensor[Int] = (Array(42, 84), Array(1,2))
 val c: DJLNDArray[Int] = (Array(3,5), Array(1,2)) 
 
@@ -24,7 +24,7 @@ println(d1._1(0) + " result ")
 
 
 //TODO: fix need to explicitly convert here
-val e: Tensor[Int] = a + toTFTensor(fromDJLNDArray(c))
+val e: org.platanios.tensorflow.api.Tensor[Int] = a + toTFTensor(c)
 println(e._1(0) + " result ")
 
 //Needs the type hint here because TF ops was imported first, defaults to that
