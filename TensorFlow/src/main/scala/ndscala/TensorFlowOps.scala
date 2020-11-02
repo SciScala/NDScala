@@ -13,7 +13,7 @@ import org.sciscala.ndscala.union._
 import org.platanios.tensorflow.api._
 //import org.platanios.tensorflow.api.tensors.ops.Math._ 
 
-
+//TODO: fix for shape safety
 object TensorFlowOps {
 //  implicit def convert[DType: ClassTag: TF](d: DType): Tensor[DType] = Tensor(d) 
   implicit def toTFTensor[DType: ClassTag: TF](t: (Array[DType], Array[Int])): Tensor[DType] = Tensor(t._1).reshape(Shape(t._2: _*))

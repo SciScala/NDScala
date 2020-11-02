@@ -13,18 +13,18 @@ import org.emergentorder.onnx.backends.ORTOperatorBackendAll
 
 object ONNXScalaOps {
 
-  implicit def convert[DType <: Supported : ClassTag](d: DType): Tensor[DType] = (Array(d).toArray, Array(1).toArray)
-  implicit def toTensor[DType <: Supported : ClassTag](t: (Array[DType], Array[Int])): Tensor[DType] = (t._1.toArray, t._2.toArray)
-  implicit def fromTensor[DType <: Supported : ClassTag](t: Tensor[DType]): (Array[DType], Array[Int]) = {
-    val onnxTensor = getOnnxTensor(t._1, t._2)
-    (getArrayFromOnnxTensor(onnxTensor), onnxTensor.getInfo.getShape.map(_.toInt))
+  implicit def convert[DType <: Supported : ClassTag](d: DType): Tensor[DType, Vec[1, VecShape[1]]] = Tensor(Array(d), 1)
+  implicit def toTensor[DType <: Supported : ClassTag](t: (Array[DType], Array[Int])): Tensor[DType, Axes] = Tensor.create(t._1.toArray, t._2.toArray)
+  implicit def fromTensor[DType <: Supported : ClassTag, Ax <: Axes](t: Tensor[DType, Ax]): (Array[DType], Array[Int]) = {
+    (t._1, t._2)
+   
   }
 }
 
 //TODO: Stricter type bounds because ORT doesn't implement them all
 //TODO: dotty-style typeclass
 //Trying to load ORT shared lib from elsewhere
-given NDArrayOps[Tensor]{
+given NDArrayOps[OSTensor]{
 //  type Supported = Int | Long | Float | Double //Union[Int]#or[Long]#or[Float]#or[Double]#create
 //  type FloatSupported = Float | Double //Union[Float]#or[Double]#create
 
@@ -105,74 +105,74 @@ given NDArrayOps[Tensor]{
   val rng = spire.random.rng.Cmwc5()
 
   //Nullary / factory ops
-  def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int]): Tensor[DType] = (Array.fill(shape.product)(implicitly[Numeric[DType]].zero), shape)
-  def ones[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int]): Tensor[DType] = (Array.fill(shape.product)(implicitly[Numeric[DType]].one), shape)
-  def full[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int], value: DType): Tensor[DType] = (Array.fill(shape.product)(value), shape)
+  def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int]): Tensor[DType, Axes] = Tensor.create(Array.fill(shape.product)(implicitly[Numeric[DType]].zero), shape)
+  def ones[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int]): Tensor[DType, Axes] = Tensor.create(Array.fill(shape.product)(implicitly[Numeric[DType]].one), shape)
+  def full[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int], value: DType): Tensor[DType, Axes] = Tensor.create(Array.fill(shape.product)(value), shape)
  
   //TODO: fix rand
 //  def rand[DType <: Supported : ClassTag: Numeric](shape: Array[Int]): Tensor[DType] = ???
 
   //Unary ops
 //  def reshape[DType <: Supported : ClassTag: Numeric](arr: Tensor[DType], newShape: Array[Int]): Tensor[DType] 
-  extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def reShape(newShape: Array[Int]): Tensor[DType] = onnx.ReshapeV5("reshape", arr,
-    (newShape.toArray.map(x => x.toLong), Array(newShape.size)))
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes] (arr: Tensor[DType, Ax]) def reShape(newShape: Array[Int]): Tensor[DType, Bx] = onnx.ReshapeV5("reshape", arr,
+    Tensor.create(newShape.toArray.map(x => x.toLong), Array(newShape.size)))
 
-  extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def transpose: Tensor[DType] = onnx.TransposeV1("transpose", None, arr)
-  extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def transpose(axes: Array[Int], dummy: Option[Boolean]): Tensor[DType] = onnx.TransposeV1("transpose", Some(axes.toArray), arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def round(): Tensor[DType]  = onnx.RoundV11("round", arr)
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes] (arr: Tensor[DType, Ax]) def transpose: Tensor[DType, Bx] = onnx.TransposeV1("transpose", None, arr)
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes] (arr: Tensor[DType, Ax]) def transpose(axes: Array[Int], dummy: Option[Boolean]): Tensor[DType, Bx] = onnx.TransposeV1("transpose", Some(axes.toArray), arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def round(): Tensor[DType, Ax]  = onnx.RoundV11("round", arr)
   //Top-level slice only
-  extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def slice(start: Int, end: Int, dummy: Option[Boolean]): Tensor[DType] = onnx.SliceV11[DType, Int]("slice", arr, (Array(start), Array(1)), (Array(end), Array(1)))
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes] (arr: Tensor[DType, Ax]) def slice(start: Int, end: Int, dummy: Option[Boolean]): Tensor[DType, Bx] = onnx.SliceV11("slice", arr, Tensor(Array(start), 1), Tensor(Array(end),1))
 
-  extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def squeeze(index: Array[Int], dummy: Option[Boolean]): Tensor[DType] = onnx.SqueezeV11("squeeze",Some(index.toArray),arr)
-  extension[DType <: Supported : ClassTag : IsSupported] (arr: Tensor[DType]) def rank: Int = getOnnxTensor(arr._1, arr._2).getInfo.getShape.size
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes] (arr: Tensor[DType, Ax]) def squeeze(index: Array[Int], dummy: Option[Boolean]): Tensor[DType, Bx] = onnx.SqueezeV11("squeeze",Some(index.toArray),arr)
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def rank: Int = arr._2.size
 
   //extension[DType <: FloatSupported : ClassTag: Numeric] (arr: Tensor[DType]) def clip(min: DType, max: DType): Tensor[DType] = onnx.ClipV11("clip", arr,None, None)
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def unary_- : Tensor[DType] = onnx.SubV7("sub", zeros(getOnnxTensor(arr._1, arr._2).getInfo.getShape.map(_.toInt)), arr)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def unary_- : Tensor[DType, Ax] = onnx.NegV6("neg", arr)
 
   
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported] (arr: Tensor[DType]) def abs(): Tensor[DType] = onnx.AbsV6("abs", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def ceil(): Tensor[DType] = onnx.CeilV6("ceil", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def floor(): Tensor[DType] = onnx.FloorV6("floor", arr)
-//  extension[DType <: Supported : ClassTag : IsSupported](arr: Seq[Tensor[DType]]) def concat(axis: Int): Tensor[DType] = onnx.ConcatV11("concat", axis, arr)
-//  def mean[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported](arr: Seq[Tensor[DType]]): Tensor[DType] = onnx.MeanV8("mean", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def log(): Tensor[DType]= onnx.LogV6("log", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def exp(): Tensor[DType] = onnx.ExpV6("exp", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def sqrt(): Tensor[DType] = onnx.SqrtV6("sqrt", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def cos(): Tensor[DType] = onnx.CosV7("cos", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def cosh(): Tensor[DType] = onnx.CoshV9("cosh", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def sin(): Tensor[DType] = onnx.SinV7("sin", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def sinh(): Tensor[DType] = onnx.SinhV9("sinh", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def tan(): Tensor[DType] = onnx.TanV7("tan", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def tanh(): Tensor[DType] = onnx.TanhV6("tanh", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def acos(): Tensor[DType] = onnx.AcosV7("acos", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def acosh(): Tensor[DType] = onnx.AcoshV9("acosh", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def asin(): Tensor[DType] = onnx.AsinV7("asin", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def asinh(): Tensor[DType] = onnx.AsinhV9("asinh", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def atan(): Tensor[DType] = onnx.AtanV7("atan", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def atanh(): Tensor[DType] = onnx.AtanhV9("atanh", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def sigmoid(): Tensor[DType] = onnx.SigmoidV6("sig", arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: Tensor[DType]) def relu(): Tensor[DType] = onnx.ReluV6("relu", arr)
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def abs(): Tensor[DType, Ax] = onnx.AbsV6("abs", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def ceil(): Tensor[DType, Ax] = onnx.CeilV6("ceil", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def floor(): Tensor[DType, Ax] = onnx.FloorV6("floor", arr)
+//  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes](arr: Seq[Tensor[DType]]) def concat(axis: Int): Tensor[DType] = onnx.ConcatV11("concat", axis, arr)
+//  def mean[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: Seq[Tensor[DType]]): Tensor[DType] = onnx.MeanV8("mean", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def log(): Tensor[DType, Ax]= onnx.LogV6("log", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def exp(): Tensor[DType, Ax] = onnx.ExpV6("exp", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def sqrt(): Tensor[DType, Ax] = onnx.SqrtV6("sqrt", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def cos(): Tensor[DType, Ax] = onnx.CosV7("cos", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def cosh(): Tensor[DType, Ax] = onnx.CoshV9("cosh", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def sin(): Tensor[DType, Ax] = onnx.SinV7("sin", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def sinh(): Tensor[DType, Ax] = onnx.SinhV9("sinh", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def tan(): Tensor[DType, Ax] = onnx.TanV7("tan", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def tanh(): Tensor[DType, Ax] = onnx.TanhV6("tanh", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def acos(): Tensor[DType, Ax] = onnx.AcosV7("acos", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def acosh(): Tensor[DType, Ax] = onnx.AcoshV9("acosh", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def asin(): Tensor[DType, Ax] = onnx.AsinV7("asin", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def asinh(): Tensor[DType, Ax] = onnx.AsinhV9("asinh", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def atan(): Tensor[DType, Ax] = onnx.AtanV7("atan", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def atanh(): Tensor[DType, Ax] = onnx.AtanhV9("atanh", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def sigmoid(): Tensor[DType, Ax] = onnx.SigmoidV6("sig", arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def relu(): Tensor[DType, Ax] = onnx.ReluV6("relu", arr)
 
 
   //Binary Tensor ops
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def +(other: Tensor[DType]): Tensor[DType] = onnx.AddV7("add", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def -(other: Tensor[DType]): Tensor[DType] = onnx.SubV7("sub", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def *(other: Tensor[DType]): Tensor[DType] = onnx.MulV7("mul", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def **(d: Tensor[DType]): Tensor[DType] = onnx.PowV7("pow", arr, d)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def /(other: Tensor[DType]): Tensor[DType] = onnx.DivV7("div", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def %(other: Tensor[DType]): Tensor[DType] = onnx.ModV10("mod", None, arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def +(other: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.AddV7("add", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def -(other: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.SubV7("sub", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def *(other: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.MulV7("mul", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def **(d: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.PowV7("pow", arr, d)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def /(other: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.DivV7("div", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def %(other: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.ModV10("mod", None, arr, other)
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def >(other: Tensor[DType]): Tensor[Boolean] = onnx.GreaterV9[DType, Boolean]("gt", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def >=(other: Tensor[DType]): Tensor[Boolean] = onnx.GreaterOrEqualV12[DType, Boolean]("gte", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def <(other: Tensor[DType]): Tensor[Boolean] = onnx.LessV9[DType, Boolean]("lt", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def <=(other: Tensor[DType]): Tensor[Boolean] = onnx.LessOrEqualV12[DType, Boolean]("lte", arr, other)
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported] (arr: Tensor[DType]) def ====(other: Tensor[DType]): Tensor[Boolean] = onnx.EqualV11[DType, Boolean]("eq", arr, other)
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported] (arr: Tensor[DType]) def !===(other: Tensor[DType]): Tensor[Boolean] = onnx.NotV1("not", onnx.EqualV11[DType, Boolean]("eq", arr, other))
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def >(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.GreaterV9[DType, Boolean, Ax]("gt", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def >=(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.GreaterOrEqualV12[DType, Boolean, Ax]("gte", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def <(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.LessV9[DType, Boolean, Ax]("lt", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def <=(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.LessOrEqualV12[DType, Boolean, Ax]("lte", arr, other)
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def ====(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.EqualV11[DType, Boolean, Ax]("eq", arr, other)
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def !===(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.NotV1("not", onnx.EqualV11[DType, Boolean, Ax]("eq", arr, other))
  
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def max(d: Tensor[DType]): Tensor[DType] = onnx.MaxV8("max", Seq(arr, d))
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def min(d: Tensor[DType]): Tensor[DType] = onnx.MinV8("min", Seq(arr, d))
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def max(d: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.MaxV8("max", Seq(arr, d))
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def min(d: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.MinV8("min", Seq(arr, d))
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported] (arr: Tensor[DType]) def matmul(other: Tensor[DType]): Tensor[DType] = onnx.MatMulV9("matmul", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes, Bx <: Axes, Cx <: Axes] (arr: Tensor[DType, Ax]) def matmul(other: Tensor[DType, Bx]): Tensor[DType, Cx] = onnx.MatMulV9("matmul", arr, other)
 }

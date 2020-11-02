@@ -18,6 +18,7 @@ import ai.djl.ndarray.types.DataType
 //import ai.djl.nn._
 //import ai.djl.nn.core._
 
+//TODO: fix for shape safety
 //TODO: Typeful wrapper for DJL's DJLNDArray
 object DJLOps {
 
