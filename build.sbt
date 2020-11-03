@@ -49,6 +49,9 @@ lazy val tensorflow = (project in file("TensorFlow"))
     name := "ndscala-tensorflow",
     libraryDependencies += ("org.typelevel" %% "spire" % "0.17.0").withDottyCompat(dottyVersion),
 //TF-scala 0.5.7 broken, 0.5.1-SNAPSHOT with correct classifier works
+    //Only needed for Axes
+    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala" % "0.8.0",
+  //Local only  
     libraryDependencies += ("org.platanios" %% "tensorflow" % "0.5.7" classifier "linux").withDottyCompat(dottyVersion),
     libraryDependencies += scalaTest % Test,
     crossScalaVersions := Seq(dottyVersion, scala213Version)
