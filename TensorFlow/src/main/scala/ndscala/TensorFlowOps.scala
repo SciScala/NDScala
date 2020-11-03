@@ -14,7 +14,6 @@ import org.platanios.tensorflow.api._
 import org.emergentorder.onnx.Tensors.Axes
 //import org.platanios.tensorflow.api.tensors.ops.Math._ 
 
-//TODO: fix for shape safety
 object TensorFlowOps {
 //  implicit def convert[DType: ClassTag: TF](d: DType): TFTensor[DType] = TFTensor(d) 
   implicit def toTFTensor[DType <: AllSupported : ClassTag: TF](t: (Array[DType], Array[Int])): TFTensor[DType, Axes] = Tensor(t._1).reshape(Shape(t._2: _*))

@@ -11,6 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import TensorFlowOps._
 
+//TODO: Don't use TF directly here
 val iters = 5
 
 val arrX:Array[Float] = ((0 until 100000000).toArray).map(_.toFloat)

@@ -17,9 +17,8 @@ import ai.djl.ndarray.index.dim.NDIndexSlice
 import ai.djl.ndarray.types.DataType
 //import ai.djl.nn._
 //import ai.djl.nn.core._
+import org.emergentorder.onnx.Tensors.Axes
 
-//TODO: fix for shape safety
-//TODO: Typeful wrapper for DJL's DJLNDArray
 object DJLOps {
 
   //possible leak
@@ -27,20 +26,22 @@ object DJLOps {
 
   //bug where toArray only returns Number in DJL
   //No enforcement of DType
-  type DJLNDArray[DType] =NDArray
-  //  implicit def convert[DType: ClassTag](d: DType): DJLNDArray[DType] = DJLNDArray(d) 
-  implicit def toDJLNDArray[DType : ClassTag](t: (Array[DType], Array[Int])): DJLNDArray[DType] = t._1 match {
-     case arr: Array[DType] => arr.head match {
-      case i: Integer => manager.create(arr.asInstanceOf[Array[Int]], new Shape(t._2.map(_.toLong): _*))
-      case l: Long => manager.create(arr.asInstanceOf[Array[Long]], new Shape(t._2.map(_.toLong): _*))
-      case f: Float => manager.create(arr.asInstanceOf[Array[Float]], new Shape(t._2.map(_.toLong): _*))
-      case d: Double => manager.create(arr.asInstanceOf[Array[Double]], new Shape(t._2.map(_.toLong): _*))
-      case b: Boolean=> manager.create(arr.asInstanceOf[Array[Boolean]], new Shape(t._2.map(_.toLong): _*))
+  type DJLNDArray[DType <: AllSupported, Ax <: Axes] =NDArray
+  //  implicit def convert[DType: ClassTag](d: DType): DJLNDArray[DType] = DJLNDArray(d)
+  
+  implicit def toDJLNDArray[DType <: AllSupported, Ax <: Axes](t: (Array[DType], Array[Int])): DJLNDArray[DType, Ax] = t._1 match {
+     case arr: Array[DType] => arr match {
+      case i: Array[Int] => manager.create(arr, new Shape(t._2.map(_.toLong): _*))
+      case l: Array[Long] => manager.create(arr, new Shape(t._2.map(_.toLong): _*))
+      case f: Array[Float] => manager.create(arr, new Shape(t._2.map(_.toLong): _*))
+      case d: Array[Double] => manager.create(arr, new Shape(t._2.map(_.toLong): _*))
+      case b: Array[Boolean]=> manager.create(arr, new Shape(t._2.map(_.toLong): _*))
      }
   }
+ 
   //returns array of numbers
   //TODO: same thing, match on first element type
-  implicit def fromDJLNDArray[DType <: AllSupported : ClassTag](t: DJLNDArray[DType]): (Array[DType], Array[Int]) = {
+  implicit def fromDJLNDArray[DType <: AllSupported : ClassTag, Ax <: Axes](t: DJLNDArray[DType, Ax]): (Array[DType], Array[Int]) = {
     val shape = Array(t.getShape.getShape.toArray: _*).map(x => x.toInt)
 
     t.getDataType.ordinal match{
@@ -61,72 +62,72 @@ object DJLOps {
 given NDArrayOps[DJLOps.DJLNDArray]{
 import DJLOps._ 
   //Nullary / factory ops
-  def zeros[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int]): DJLNDArray[DType] = manager.zeros(new Shape(shape.map(_.toLong): _*))
-  def ones[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int]): DJLNDArray[DType] = manager.ones(new Shape(shape.map(_.toLong): _*))
-  def full[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int], value: DType): DJLNDArray[DType] = ??? // manager.full(new Shape(shape: _*), value)
+  def zeros[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int]): DJLNDArray[DType, Axes] = manager.zeros(new Shape(shape.map(_.toLong): _*))
+  def ones[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int]): DJLNDArray[DType, Axes] = manager.ones(new Shape(shape.map(_.toLong): _*))
+  def full[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int], value: DType): DJLNDArray[DType, Axes] = ??? // manager.full(new Shape(shape: _*), value)
 
   
   //TODO: fix rand
 //  def rand[DType : ClassTag: Numeric: IsSupported](shape: Array[Int]): DJLNDArray[DType] = ???
 
   //Unary ops
-  extension[DType <: Supported : ClassTag: IsSupported](arr: DJLNDArray[DType]) def reShape (newShape: Array[Int]): DJLNDArray[DType] = arr.reshape(newShape.map(_.toLong): _*)
-  extension[DType <: Supported : ClassTag: IsSupported](arr: DJLNDArray[DType]) def transpose: DJLNDArray[DType] = arr.transpose()
-  extension[DType <: Supported : ClassTag: IsSupported](arr: DJLNDArray[DType]) def transpose (axes: Array[Int], dummy: Option[Boolean]): DJLNDArray[DType] = arr.transpose(axes: _*)
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def round(): DJLNDArray[DType]  = arr.round
+  extension[DType <: Supported : ClassTag: IsSupported, Ax <: Axes, Bx <: Axes](arr: DJLNDArray[DType, Ax]) def reShape (newShape: Array[Int]): DJLNDArray[DType, Bx] = arr.reshape(newShape.map(_.toLong): _*)
+  extension[DType <: Supported : ClassTag: IsSupported, Ax <: Axes, Bx <: Axes](arr: DJLNDArray[DType, Ax]) def transpose: DJLNDArray[DType, Bx] = arr.transpose()
+  extension[DType <: Supported : ClassTag: IsSupported, Ax <: Axes, Bx <: Axes](arr: DJLNDArray[DType, Ax]) def transpose (axes: Array[Int], dummy: Option[Boolean]): DJLNDArray[DType, Bx] = arr.transpose(axes: _*)
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def round(): DJLNDArray[DType, Ax]  = arr.round
   //Top-level slice only
-  extension[DType <: Supported : ClassTag: IsSupported](arr: DJLNDArray[DType]) def slice(start: Int, end: Int, dummy: Option[Boolean]): DJLNDArray[DType] = arr.get((new NDIndex()).addSliceDim(start, end))
+  extension[DType <: Supported : ClassTag: IsSupported, Ax <: Axes, Bx <: Axes](arr: DJLNDArray[DType, Ax]) def slice(start: Int, end: Int, dummy: Option[Boolean]): DJLNDArray[DType, Bx] = arr.get((new NDIndex()).addSliceDim(start, end))
 
-  extension[DType <: Supported : ClassTag: IsSupported](arr: DJLNDArray[DType]) def squeeze(index: Array[Int], dummy: Option[Boolean]): DJLNDArray[DType] = arr.squeeze(index.toArray)
+  extension[DType <: Supported : ClassTag: IsSupported, Ax <: Axes, Bx <: Axes](arr: DJLNDArray[DType, Ax]) def squeeze(index: Array[Int], dummy: Option[Boolean]): DJLNDArray[DType, Bx] = arr.squeeze(index.toArray)
 
-  extension[DType <: Supported : ClassTag: IsSupported](arr: DJLNDArray[DType]) def rank: Int = arr.getShape.getShape.size
+  extension[DType <: Supported : ClassTag: IsSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def rank: Int = arr.getShape.getShape.size
 //  def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType], min: DType, max: DType): DJLNDArray[DType] = arr.clip(min, max) 
 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def unary_- : DJLNDArray[DType] = arr.neg 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def unary_- : DJLNDArray[DType, Ax] = arr.neg 
 
-  extension[DType <: NumericSupported: ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def abs() : DJLNDArray[DType] = arr.abs 
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def ceil() : DJLNDArray[DType] = arr.ceil
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def floor() : DJLNDArray[DType] = arr.floor 
+  extension[DType <: NumericSupported: ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def abs() : DJLNDArray[DType, Ax] = arr.abs 
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def ceil() : DJLNDArray[DType, Ax] = arr.ceil
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def floor() : DJLNDArray[DType, Ax] = arr.floor 
 //  def concat[DType: ClassTag: Numeric: IsSupported](arr: DJLNDArray[DType]*): DJLNDArray[DType] = onnx.Concat11("concat", Some(ndArrayToDJLNDArray(arr)))))
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def log() : DJLNDArray[DType]= arr.log 
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def exp() : DJLNDArray[DType] = arr.exp
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def sqrt() : DJLNDArray[DType] = arr.sqrt
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def cos() : DJLNDArray[DType] = arr.cos
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def cosh() : DJLNDArray[DType] = arr.cosh
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def sin() : DJLNDArray[DType] = arr.sin
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def sinh(): DJLNDArray[DType] = arr.sinh
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def tan() : DJLNDArray[DType] = arr.tan
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def tanh() : DJLNDArray[DType] = arr.tanh
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def acos() : DJLNDArray[DType] = arr.acos
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def acosh() : DJLNDArray[DType] = arr.acosh
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def asin() : DJLNDArray[DType] = arr.asin
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def asinh() : DJLNDArray[DType] = arr.asinh
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def atan() : DJLNDArray[DType] = arr.atan
-  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported](arr: DJLNDArray[DType]) def atanh() : DJLNDArray[DType] = arr.atanh
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def log() : DJLNDArray[DType, Ax]= arr.log 
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def exp() : DJLNDArray[DType, Ax] = arr.exp
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def sqrt() : DJLNDArray[DType, Ax] = arr.sqrt
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def cos() : DJLNDArray[DType, Ax] = arr.cos
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def cosh() : DJLNDArray[DType, Ax] = arr.cosh
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def sin() : DJLNDArray[DType, Ax] = arr.sin
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def sinh(): DJLNDArray[DType, Ax] = arr.sinh
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def tan() : DJLNDArray[DType, Ax] = arr.tan
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def tanh() : DJLNDArray[DType, Ax] = arr.tanh
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def acos() : DJLNDArray[DType, Ax] = arr.acos
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def acosh() : DJLNDArray[DType, Ax] = arr.acosh
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def asin() : DJLNDArray[DType, Ax] = arr.asin
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def asinh() : DJLNDArray[DType, Ax] = arr.asinh
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def atan() : DJLNDArray[DType, Ax] = arr.atan
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def atanh() : DJLNDArray[DType, Ax] = arr.atanh
 
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: DJLNDArray[DType]) def sigmoid(): DJLNDArray[DType] = ai.djl.nn.Activation.sigmoid(arr)
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported] (arr: DJLNDArray[DType]) def relu(): DJLNDArray[DType] = ai.djl.nn.Activation.relu(arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: DJLNDArray[DType, Ax]) def sigmoid(): DJLNDArray[DType, Ax] = ai.djl.nn.Activation.sigmoid(arr)
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: DJLNDArray[DType, Ax]) def relu(): DJLNDArray[DType, Ax] = ai.djl.nn.Activation.relu(arr)
 
   //Binary DJLNDArray ops
 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def + (other: DJLNDArray[DType]): DJLNDArray[DType] = arr add other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def - (other: DJLNDArray[DType]): DJLNDArray[DType] = arr sub other
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def * (other: DJLNDArray[DType]): DJLNDArray[DType] = arr mul other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def ** (other: DJLNDArray[DType]): DJLNDArray[DType] = arr pow other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def / (other: DJLNDArray[DType]): DJLNDArray[DType] = arr div other
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def % (other: DJLNDArray[DType]): DJLNDArray[DType] = arr mod other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def + (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr add other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def - (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr sub other
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def * (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr mul other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def ** (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr pow other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def / (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr div other
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def % (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr mod other 
 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def > (other: DJLNDArray[DType]): DJLNDArray[Boolean] = arr gt other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def >= (other: DJLNDArray[DType]): DJLNDArray[Boolean] = arr gte other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def < (other: DJLNDArray[DType]): DJLNDArray[Boolean] = arr lt other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def <= (other: DJLNDArray[DType]): DJLNDArray[Boolean] = arr lte other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def > (other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr gt other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def >= (other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr gte other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def < (other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr lt other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def <= (other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr lte other 
   
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported] (arr: DJLNDArray[DType]) def ====(other: DJLNDArray[DType]): DJLNDArray[Boolean] = arr eq other
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported] (arr: DJLNDArray[DType]) def !===(other: DJLNDArray[DType]): DJLNDArray[Boolean] = arr neq other
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: DJLNDArray[DType, Ax]) def ====(other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr eq other
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: DJLNDArray[DType, Ax]) def !===(other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr neq other
 
-  extension[DType <: NumericSupported: ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def max (d: DJLNDArray[DType]): DJLNDArray[DType] = arr maximum d 
-  extension[DType <: NumericSupported: ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def min (d: DJLNDArray[DType]): DJLNDArray[DType] = arr minimum d 
+  extension[DType <: NumericSupported: ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def max (d: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr maximum d 
+  extension[DType <: NumericSupported: ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def min (d: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr minimum d 
 
   //DJL-mxnet only actually supports Float here (gpu only?)
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](arr: DJLNDArray[DType]) def matmul (other: DJLNDArray[DType]): DJLNDArray[DType] = arr dot other
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes, Bx <: Axes, Cx <: Axes](arr: DJLNDArray[DType, Ax]) def matmul (other: DJLNDArray[DType, Bx]): DJLNDArray[DType, Cx] = arr dot other
 }

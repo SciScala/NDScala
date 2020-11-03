@@ -65,7 +65,8 @@ lazy val djl = (project in file("DJL"))
     libraryDependencies += "ai.djl" % "api" % "0.8.0",
     libraryDependencies += "ai.djl.mxnet" % "mxnet-engine" % "0.8.0", 
     libraryDependencies += "ai.djl.mxnet" % "mxnet-native-mkl" % "1.7.0-backport",
-
+    //Only needed for Axes
+    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala" % "0.8.0",
     libraryDependencies += scalaTest % Test,
     crossScalaVersions := Seq(dottyVersion, scala213Version)
   )
