@@ -18,6 +18,7 @@ import ai.djl.ndarray.types.DataType
 //import ai.djl.nn._
 //import ai.djl.nn.core._
 import org.emergentorder.onnx.Tensors.Axes
+import org.emergentorder.onnx.Tensors.Tensor._
 
 object DJLOps {
 
@@ -29,27 +30,43 @@ object DJLOps {
   type DJLNDArray[DType <: AllSupported, Ax <: Axes] =NDArray
   //  implicit def convert[DType: ClassTag](d: DType): DJLNDArray[DType] = DJLNDArray(d)
   
-  implicit def toDJLNDArray[DType <: AllSupported, Ax <: Axes](t: (Array[DType], Array[Int])): DJLNDArray[DType, Ax] = t._1 match {
+  implicit def toDJLNDArray[DType <: AllSupported, Ax <: Axes](t: (Array[DType], Ax)): DJLNDArray[DType, Ax] = t._1 match {
      case arr: Array[DType] => arr match {
-      case i: Array[Int] => manager.create(arr, new Shape(t._2.map(_.toLong): _*))
-      case l: Array[Long] => manager.create(arr, new Shape(t._2.map(_.toLong): _*))
-      case f: Array[Float] => manager.create(arr, new Shape(t._2.map(_.toLong): _*))
-      case d: Array[Double] => manager.create(arr, new Shape(t._2.map(_.toLong): _*))
-      case b: Array[Boolean]=> manager.create(arr, new Shape(t._2.map(_.toLong): _*))
+      case i: Array[Int] => manager.create(arr, new Shape(t.shape.map(_.toLong): _*))
+      case l: Array[Long] => manager.create(arr, new Shape(t.shape.map(_.toLong): _*))
+      case f: Array[Float] => manager.create(arr, new Shape(t.shape.map(_.toLong): _*))
+      case d: Array[Double] => manager.create(arr, new Shape(t.shape.map(_.toLong): _*))
+      case b: Array[Boolean]=> manager.create(arr, new Shape(t.shape.map(_.toLong): _*))
      }
   }
  
   //returns array of numbers
   //TODO: same thing, match on first element type
-  implicit def fromDJLNDArray[DType <: AllSupported : ClassTag, Ax <: Axes](t: DJLNDArray[DType, Ax]): (Array[DType], Array[Int]) = {
+  //for now just use Axes
+  implicit def fromDJLNDArray[DType <: AllSupported : ClassTag, Ax <: Axes](t: DJLNDArray[DType, Ax]): (Array[DType], Ax) = {
     val shape = Array(t.getShape.getShape.toArray: _*).map(x => x.toInt)
 
     t.getDataType.ordinal match{
-    case 4 => (Array(t.toIntArray: _*).asInstanceOf[Array[DType]] , shape) 
-    case 6 => (Array(t.toLongArray: _*).asInstanceOf[Array[DType]] , shape) 
-    case 0 => (Array(t.toFloatArray: _*).asInstanceOf[Array[DType]] , shape) 
-    case 1 => (Array(t.toDoubleArray: _*).asInstanceOf[Array[DType]] , shape)
-    case 7 => (Array(t.toBooleanArray: _*).asInstanceOf[Array[DType]] , shape)
+    case 4 => {
+      val tens = create(Array(t.toIntArray: _*).asInstanceOf[Array[DType]] , shape)
+      (tens.data, tens._2)
+    }
+    case 6 => {
+      val tens = create(Array(t.toLongArray: _*).asInstanceOf[Array[DType]] , shape)
+      (tens.data, tens._2)
+    } 
+    case 0 => {
+      val tens = create(Array(t.toFloatArray: _*).asInstanceOf[Array[DType]] , shape)
+      (tens.data, tens._2)
+    }
+    case 1 => {
+      val tens = create(Array(t.toDoubleArray: _*).asInstanceOf[Array[DType]] , shape)
+      (tens.data, tens._2)
+    }
+    case 7 => {
+      val tens = create(Array(t.toBooleanArray: _*).asInstanceOf[Array[DType]] , shape)
+      (tens.data, tens._2)
+    }
     }
 
   }

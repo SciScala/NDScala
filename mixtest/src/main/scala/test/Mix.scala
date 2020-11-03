@@ -4,31 +4,31 @@ import scala.language.implicitConversions
 import org.platanios.tensorflow.api._
 import ai.djl._
 import ai.djl.ndarray._
+import org.emergentorder.onnx.Tensors._
 
 import TensorFlowOps._
 import ONNXScalaOps._
 import DJLOps._
 
 object Mix extends App{
-val a: org.platanios.tensorflow.api.Tensor[Int] = (Array(1,2), Array(1,2)) 
-val b: org.emergentorder.onnx.Tensors.Tensor[Int] = (Array(42, 84), Array(1,2))
-val c: DJLNDArray[Int] = (Array(3,5), Array(1,2)) 
+val a: TFTensor[Int, Mat[1,2,MatShape[1,2]]] = (Array(1,2), Mat(1,2)) 
+val b: org.emergentorder.onnx.Tensors.Tensor[Int, Mat[1,2,MatShape[1,2]]] = org.emergentorder.onnx.Tensors.Tensor(Array(42, 84), 1,2)
+val c: DJLNDArray[Int, Mat[1,2,MatShape[1,2]]] = (Array(3,5), Mat(1,2)) 
 
-val d1: org.platanios.tensorflow.api.Tensor[Int] = a + b
-val d2: org.emergentorder.onnx.Tensors.Tensor[Int] = a + b
+val d1: TFTensor[Int, Mat[1,2,MatShape[1,2]]] = a + b
+val d2: org.emergentorder.onnx.Tensors.Tensor[Int, Mat[1,2,MatShape[1,2]]] = b + a
 val arr = (d1 === d2)
 
 println("TF and OS tensors are same: " + arr.getElementAtFlattenedIndex(1))
 
 println(d1._1(0) + " result ")
 
-
-//TODO: fix need to explicitly convert here
-val e: org.platanios.tensorflow.api.Tensor[Int] = a + toTFTensor(c)
+//need to explicitly convert here because it requires 2 conversions, which won't chain automatically
+//OSTensor is the intermediate here, so it only needs 1 conversion
+val e: TFTensor[Int, Mat[1,2,MatShape[1,2]]] = a + toTFTensor(c)
 println(e._1(0) + " result ")
 
-//Needs the type hint here because TF ops was imported first, defaults to that
-val f: DJLNDArray[Int] = ((Array(3,5), Array(1,2)): DJLNDArray[Int]) + b
+val f: DJLNDArray[Int, Mat[1,2,MatShape[1,2]]] = ((Array(3,5), Mat(1,2))) + b
 println(f._1(0).toString + " result ")
 
 }

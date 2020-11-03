@@ -12,12 +12,16 @@ import org.sciscala.ndscala.union._
 //import org.platanios.tensorflow.api.core._
 import org.platanios.tensorflow.api._
 import org.emergentorder.onnx.Tensors.Axes
+import org.emergentorder.onnx.Tensors.Tensor._
 //import org.platanios.tensorflow.api.tensors.ops.Math._ 
 
 object TensorFlowOps {
 //  implicit def convert[DType: ClassTag: TF](d: DType): TFTensor[DType] = TFTensor(d) 
-  implicit def toTFTensor[DType <: AllSupported : ClassTag: TF](t: (Array[DType], Array[Int])): TFTensor[DType, Axes] = Tensor(t._1).reshape(Shape(t._2: _*))
-  implicit def fromTFTFTensor[DType <: AllSupported : ClassTag: TF, Ax <: Axes](t: TFTensor[DType, Ax]): (Array[DType], Array[Int]) = (Array(t.toArray: _*) , Array(t.shape.toArray: _*)) 
+  implicit def toTFTensor[DType <: AllSupported : ClassTag: TF, Ax <: Axes](t: (Array[DType], Ax)): TFTensor[DType, Ax] = Tensor(t._1).reshape(Shape(t.shape: _*))
+  implicit def fromTFTensor[DType <: AllSupported : ClassTag: TF, Ax <: Axes](t: TFTensor[DType, Ax]): (Array[DType], Ax) = {
+    val tens = create(Array(t.toArray: _*) , Array(t.shape.toArray: _*)) 
+    (tens._1, tens._2)
+  }
 }
 
 type TFTensor[DType <: AllSupported, Ax <: Axes] = Tensor[DType]

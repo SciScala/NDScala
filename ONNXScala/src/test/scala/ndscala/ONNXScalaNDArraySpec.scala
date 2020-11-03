@@ -8,6 +8,7 @@ import org.emergentorder.onnx.Tensors._
 //import scala.reflect.ClassTag
 import ONNXScalaOps._
 
+//TODO: tests for higher rank tensors
 class ONNXScalaTensorSpec extends AnyFlatSpec {
 //  type Supported = Int | Long | Float | Double //Union[Int]#or[Long]#or[Float]#or[Double]#create
 //  type FloatSupported = Float | Double //Union[Float]#or[Double]#create
@@ -17,23 +18,23 @@ class ONNXScalaTensorSpec extends AnyFlatSpec {
 
 //  import NDArrayOps.ops._
 
-//  implicit def convert[DType : ClassTag: Numeric](d: DType): Tensor[DType] = TensorFactory.getTensor(Array(d).toArray, Array(1).toArray)
-//  implicit def toTensor[DType : ClassTag: Numeric](t: (Array[DType], Array[Int])): Tensor[DType] = TensorFactory.getTensor(t._1.toArray, t._2.toArray)
-//  implicit def fromTensor[DType : ClassTag](t: Tensor[DType]): (Array[DType], Array[Int]) = (t._1, t._2)
+//  implicit def convert[DType : ClassTag: Numeric](d: DType): Tensor[DType] = TensorFactory.getTensor(Array(d).toArray, Mat(1).toArray)
+//  implicit def toTensor[DType : ClassTag: Numeric](t: (Array[DType], Mat[Int])): Tensor[DType] = TensorFactory.getTensor(t._1.toArray, t._2.toArray)
+//  implicit def fromTensor[DType : ClassTag](t: Tensor[DType]): (Array[DType], Mat[Int]) = (t._1, t._2)
 
 
 
   /*
   "Tensor" should "zero" in {
-    (ndarrayOps.zeros[Int](Array(4))) shouldEqual (Array(0,0,0,0), Array(4))
+    (ndarrayOps.zeros[Int](Array(4))) shouldEqual (Array(0,0,0,0), Mat(4))
   }
 
   "Tensor" should "one" in {
-    (ndarrayOps.ones[Int](Array(4))) shouldEqual (Array(1,1,1,1), Array(4))
+    (ndarrayOps.ones[Int](Array(4))) shouldEqual (Array(1,1,1,1), Mat(4))
   }
 
   "Tensor" should "fill" in {
-    (ndarrayOps.full(Array(4), 5)) shouldEqual (Array(5,5,5,5), Array(4))
+    (ndarrayOps.full(Array(4), 5)) shouldEqual (Array(5,5,5,5), Mat(4))
   }
 */
 
@@ -110,8 +111,8 @@ class ONNXScalaTensorSpec extends AnyFlatSpec {
 
   /*
   "Tensor" should "clip" in {
-    val arr: Tensor[Double] = (Array(41.7, 84.5), Array(1,2))
-    (arr.clip(50.0, 90.0)) shouldEqual (Array(50.0, 84.5), Array(1,2))
+    val arr: Tensor[Double] = (Array(41.7, 84.5), Mat(1,2))
+    (arr.clip(50.0, 90.0)) shouldEqual (Array(50.0, 84.5), Mat(1,2))
   }
 */
   "Tensor" should "unary subtract" in {
@@ -148,15 +149,15 @@ class ONNXScalaTensorSpec extends AnyFlatSpec {
 
   /*
   "Tensor" should "concat" in {
-    val arr: Tensor[Double] = (Array(1.0, 4.0, 9.0), Array(1,3))
-    val arrB: Tensor[Double] = (Array(2.0, 3.0, 4.0, 5.0, 6.0, 7.0), Array(2,3))
-    doAssert((Seq(arr, arrB) concat(0)) ==== (Array(1.0, 4.0, 9.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0), Array(3,3)))
+    val arr: Tensor[Double] = (Array(1.0, 4.0, 9.0), Mat(1,3))
+    val arrB: Tensor[Double] = (Array(2.0, 3.0, 4.0, 5.0, 6.0, 7.0), Mat(2,3))
+    doAssert((Seq(arr, arrB) concat(0)) ==== (Array(1.0, 4.0, 9.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0), Mat(3,3)))
   }
 
   "Tensor" should "mean" in {
-    val arr: Tensor[Float] = (Array(1.0f, 4.0f, 9.0f), Array(1,3))
-    val arrB: Tensor[Float] = (Array(3.0f, 2.0f, 3.0f), Array(1,3))
-    doAssert((mean(Seq(arr, arrB))) ==== (Array(2.0f, 3.0f, 6.0f), Array(1,3)))
+    val arr: Tensor[Float] = (Array(1.0f, 4.0f, 9.0f), Mat(1,3))
+    val arrB: Tensor[Float] = (Array(3.0f, 2.0f, 3.0f), Mat(1,3))
+    doAssert((mean(Seq(arr, arrB))) ==== (Array(2.0f, 3.0f, 6.0f), Mat(1,3)))
   }
 */
   "Tensor" should "sqrt" in {
@@ -259,7 +260,7 @@ class ONNXScalaTensorSpec extends AnyFlatSpec {
   "Tensor" should "matmul" in {
     val arr: Tensor[Double, Mat[1,2,MatShape[1,2]]] = Tensor(Array(42.0, 84.0), 1, 2)
     val other: Tensor[Double, Mat[2,1,MatShape[2,1]]] = Tensor(Array(42.0, 84.0), 2, 1)
-    val result = (arr matmul other) ==== (Array(8820.0), Array(1,1))
+    val result = (arr matmul other) ==== (Array(8820.0), Mat(1,1))
     doAssert(result)
   }
 }

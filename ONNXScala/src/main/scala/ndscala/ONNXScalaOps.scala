@@ -9,14 +9,15 @@ import spire.math._
 import scala.language.implicitConversions
 
 import org.emergentorder.onnx.Tensors._
+import org.emergentorder.onnx.Tensors.Tensor._
 import org.emergentorder.onnx.backends.ORTOperatorBackendAll
 
 object ONNXScalaOps {
 
   implicit def convert[DType <: Supported : ClassTag](d: DType): Tensor[DType, Vec[1, VecShape[1]]] = Tensor(Array(d), 1)
-  implicit def toTensor[DType <: Supported : ClassTag](t: (Array[DType], Array[Int])): Tensor[DType, Axes] = Tensor.create(t._1.toArray, t._2.toArray)
-  implicit def fromTensor[DType <: Supported : ClassTag, Ax <: Axes](t: Tensor[DType, Ax]): (Array[DType], Array[Int]) = {
-    (t._1, t._2)
+  implicit def toTensor[DType <: Supported : ClassTag, Ax <: Axes](t: (Array[DType], Ax)): Tensor[DType, Ax] = Tensor.create(t.data.toArray, t.shape.toArray)
+  implicit def fromTensor[DType <: Supported : ClassTag, Ax <: Axes](t: Tensor[DType, Ax]): (Array[DType], Ax) = {
+    (t.data, t._2)
    
   }
 }
@@ -124,7 +125,7 @@ given NDArrayOps[OSTensor]{
   extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes] (arr: Tensor[DType, Ax]) def slice(start: Int, end: Int, dummy: Option[Boolean]): Tensor[DType, Bx] = onnx.SliceV11("slice", arr, Tensor(Array(start), 1), Tensor(Array(end),1))
 
   extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes] (arr: Tensor[DType, Ax]) def squeeze(index: Array[Int], dummy: Option[Boolean]): Tensor[DType, Bx] = onnx.SqueezeV11("squeeze",Some(index.toArray),arr)
-  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def rank: Int = arr._2.size
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def rank: Int = arr.shape.size
 
   //extension[DType <: FloatSupported : ClassTag: Numeric] (arr: Tensor[DType]) def clip(min: DType, max: DType): Tensor[DType] = onnx.ClipV11("clip", arr,None, None)
 
