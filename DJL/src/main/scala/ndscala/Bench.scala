@@ -21,15 +21,15 @@ val arrY:Array[Float] = ((0 until 10000).toArray).map(_.toFloat)
 val arrW0:Array[Float] = ((0 until 100000000).toArray).map(_.toFloat)
 val arrW1:Array[Float] = ((0 until 10000).toArray).map(_.toFloat)
 
-val x: DJLNDArray[Float, Mat[10000,10000,MatShape[10000,10000]]] = (arrX, Mat(10000,10000))
-val y: DJLNDArray[Float, Mat[10000,1,MatShape[10000,1]]]  = (arrY, Mat(10000,1))
+val x: DJLNDArray[Float, Mat[?,?,?,10000,10000,MatShape[10000,10000]]] = (arrX, Mat(10000,10000))
+val y: DJLNDArray[Float, Mat[?,?,?,10000,1,MatShape[10000,1]]]  = (arrY, Mat(10000,1))
 
 //TODO: call recursively
 
-val w0: DJLNDArray[Float, Mat[10000,10000,MatShape[10000,10000]]] = (arrW0, Mat(10000,10000))
-val w1: DJLNDArray[Float, Mat[10000,1,MatShape[10000,1]]] = (arrW1, Mat(10000,1))
+val w0: DJLNDArray[Float, Mat[?,?,?,10000,10000,MatShape[10000,10000]]] = (arrW0, Mat(10000,10000))
+val w1: DJLNDArray[Float, Mat[?,?,?,10000,1,MatShape[10000,1]]] = (arrW1, Mat(10000,1))
 
-val one: DJLNDArray[Float, Vec[1,VecShape[1]]] = (Array(1.0f), Vec(1))
+val one: DJLNDArray[Float, Vec[?,?,1,VecShape[1]]] = (Array(1.0f), Vec(1))
 
 def train = {
 //     val future = async {

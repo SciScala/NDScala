@@ -14,7 +14,7 @@ import org.emergentorder.onnx.backends.ORTOperatorBackendAll
 
 object ONNXScalaOps {
 
-  implicit def convert[DType <: Supported : ClassTag](d: DType): Tensor[DType, Vec[1, VecShape[1]]] = Tensor(Array(d), 1)
+  implicit def convert[DType <: Supported : ClassTag](d: DType): Tensor[DType, Vec[?, ?, 1, VecShape[1]]] = Tensor(Array(d), 1)
   implicit def toTensor[DType <: Supported : ClassTag, Ax <: Axes](t: (Array[DType], Ax)): Tensor[DType, Ax] = Tensor.create(t.data.toArray, t.shape.toArray)
   implicit def fromTensor[DType <: Supported : ClassTag, Ax <: Axes](t: Tensor[DType, Ax]): (Array[DType], Ax) = {
     (t.data, t._2)
