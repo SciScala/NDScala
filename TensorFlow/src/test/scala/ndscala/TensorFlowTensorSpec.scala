@@ -5,7 +5,7 @@ import scala.language.implicitConversions
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.platanios.tensorflow.api._
-import org.emergentorder.onnx.Tensors.{Mat, Vec}
+import org.emergentorder.onnx.Tensors.{Mat, Vec, MatShape}
 //import scala.reflect.ClassTag
 import TensorFlowOps._
 
@@ -39,6 +39,7 @@ class TensorFlowTensorSpec extends AnyFlatSpec {
   }
 */
 
+//TODO: test TFTensor here, not Tensor
 // TODO: Don't do this, it silences match errors
   def doAssert(t: Tensor[Boolean]) = {
     assert(t._1(0))
@@ -249,13 +250,13 @@ class TensorFlowTensorSpec extends AnyFlatSpec {
   "Tensor" should "max" in {
     val arr: Tensor[Float] = (Array(42.0f, 84.0f), Mat(1,2))
     val other: Tensor[Float] = (Array(50.0f, 80.0f), Mat(1,2))
-    doAssert((arr max other) ==== (Array(50.0f, 84.0f), Mat(1,2)))
+    doAssert(((arr max other):TFTensor[Float, Mat[?,?,?, MatShape[1,2]]]) ==== (Array(50.0f, 84.0f), Mat(1,2)))
   }
 
   "Tensor" should "min" in {
     val arr: Tensor[Double] = (Array(42.0, 84.0), Mat(1,2))
     val other: Tensor[Double] = (Array(50.0, 80.0), Mat(1,2))
-    doAssert((arr min other) ==== (Array(42.0, 80.0), Mat(1,2)))
+    doAssert(((arr min other):TFTensor[Double, Mat[?,?,?, MatShape[1,2]]]) ==== (Array(42.0, 80.0), Mat(1,2)))
   }
 
   "Tensor" should "matmul" in {

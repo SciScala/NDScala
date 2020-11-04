@@ -4,6 +4,7 @@ import org.sciscala.ndscala.union._
 import scala.reflect.ClassTag
 import spire.math.Numeric
 import org.emergentorder.onnx.Tensors._
+import org.emergentorder.=!=
 
 //TODO: idea for named tensor / axis types : use string singleton types
 //TODO: in simple-df : evaluate crossbow
@@ -72,23 +73,23 @@ trait NDArrayOps[SomeNDArray[_ <: AllSupported, _ <: Axes]] {
 
   extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes, Bx <: Axes, Cx <: Axes] (arr: SomeNDArray[DType, Ax]) def matmul(other: SomeNDArray[DType, Bx]): SomeNDArray[DType, Cx]
 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def +(other: SomeNDArray[DType, Ax]): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def -(other: SomeNDArray[DType, Ax]): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def *(other: SomeNDArray[DType, Ax]): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def **(other: SomeNDArray[DType, Ax]): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def /(other: SomeNDArray[DType, Ax]): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def %(other: SomeNDArray[DType, Ax]): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def >(other: SomeNDArray[DType, Ax]): SomeNDArray[Boolean, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def >=(other: SomeNDArray[DType, Ax]): SomeNDArray[Boolean, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def <(other: SomeNDArray[DType, Ax]): SomeNDArray[Boolean, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def <=(other: SomeNDArray[DType, Ax]): SomeNDArray[Boolean, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def +(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def -(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def *(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def **(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def /(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def %(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def >(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def >=(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def <(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def <=(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
 
   //Restricted to numeric only because of TF
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def ====(other: SomeNDArray[DType, Ax]): SomeNDArray[Boolean, Ax]
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def !===(other: SomeNDArray[DType, Ax]): SomeNDArray[Boolean, Ax]
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def ====(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def !===(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
 
   //TF-scala conflicts with max and min
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def max(other: SomeNDArray[DType, Ax]): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def min(other: SomeNDArray[DType, Ax]): SomeNDArray[DType, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def max(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def min(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
 
 }

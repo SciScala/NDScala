@@ -11,10 +11,11 @@ import scala.language.implicitConversions
 import org.emergentorder.onnx.Tensors._
 import org.emergentorder.onnx.Tensors.Tensor._
 import org.emergentorder.onnx.backends.ORTOperatorBackendAll
+import org.emergentorder.=!=
 
 object ONNXScalaOps {
 
-  implicit def convert[DType <: Supported : ClassTag](d: DType): Tensor[DType, Vec[?, ?, 1, VecShape[1]]] = Tensor(Array(d), 1)
+  implicit def convert[DType <: Supported : ClassTag](d: DType): Tensor[DType, Vec[?, ?, VecShape[1]]] = Tensor(Array(d), 1)
   implicit def toTensor[DType <: Supported : ClassTag, Ax <: Axes](t: (Array[DType], Ax)): Tensor[DType, Ax] = Tensor.create(t.data.toArray, t.shape.toArray)
   implicit def fromTensor[DType <: Supported : ClassTag, Ax <: Axes](t: Tensor[DType, Ax]): (Array[DType], Ax) = {
     (t.data, t._2)
@@ -158,22 +159,22 @@ given NDArrayOps[OSTensor]{
 
   //Binary Tensor ops
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def +(other: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.AddV7("add", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def -(other: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.SubV7("sub", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def *(other: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.MulV7("mul", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def **(d: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.PowV7("pow", arr, d)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def /(other: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.DivV7("div", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def %(other: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.ModV10("mod", None, arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def +(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[DType, Ax] = onnx.AddV7("add", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def -(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[DType, Ax] = onnx.SubV7("sub", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def *(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[DType, Ax] = onnx.MulV7("mul", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def **(d: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[DType, Ax] = onnx.PowV7("pow", arr, d)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def /(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[DType, Ax] = onnx.DivV7("div", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def %(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[DType, Ax] = onnx.ModV10("mod", None, arr, other)
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def >(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.GreaterV9[DType, Boolean, Ax]("gt", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def >=(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.GreaterOrEqualV12[DType, Boolean, Ax]("gte", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def <(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.LessV9[DType, Boolean, Ax]("lt", arr, other)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def <=(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.LessOrEqualV12[DType, Boolean, Ax]("lte", arr, other)
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def ====(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.EqualV11[DType, Boolean, Ax]("eq", arr, other)
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def !===(other: Tensor[DType, Ax]): Tensor[Boolean, Ax] = onnx.NotV1("not", onnx.EqualV11[DType, Boolean, Ax]("eq", arr, other))
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def >(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[Boolean, Ax] = onnx.GreaterV9[DType, Boolean, Ax]("gt", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def >=(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[Boolean, Ax] = onnx.GreaterOrEqualV12[DType, Boolean, Ax]("gte", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def <(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[Boolean, Ax] = onnx.LessV9[DType, Boolean, Ax]("lt", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def <=(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[Boolean, Ax] = onnx.LessOrEqualV12[DType, Boolean, Ax]("lte", arr, other)
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def ====(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[Boolean, Ax] = onnx.EqualV11[DType, Boolean, Ax]("eq", arr, other)
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def !===(other: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[Boolean, Ax] = onnx.NotV1("not", onnx.EqualV11[DType, Boolean, Ax]("eq", arr, other))
  
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def max(d: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.MaxV8("max", Seq(arr, d))
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def min(d: Tensor[DType, Ax]): Tensor[DType, Ax] = onnx.MinV8("min", Seq(arr, d))
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def max(d: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[DType, Ax] = onnx.MaxV8("max", Seq(arr, d))
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: Tensor[DType, Ax]) def min(d: Tensor[DType, Ax])(implicit ev: Ax =!= Axes): Tensor[DType, Ax] = onnx.MinV8("min", Seq(arr, d))
 
   extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes, Bx <: Axes, Cx <: Axes] (arr: Tensor[DType, Ax]) def matmul(other: Tensor[DType, Bx]): Tensor[DType, Cx] = onnx.MatMulV9("matmul", arr, other)
 }

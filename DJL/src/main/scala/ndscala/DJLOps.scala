@@ -19,6 +19,7 @@ import ai.djl.ndarray.types.DataType
 //import ai.djl.nn.core._
 import org.emergentorder.onnx.Tensors.Axes
 import org.emergentorder.onnx.Tensors.Tensor._
+import org.emergentorder.=!=
 
 object DJLOps {
 
@@ -127,23 +128,23 @@ import DJLOps._
 
   //Binary DJLNDArray ops
 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def + (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr add other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def - (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr sub other
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def * (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr mul other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def ** (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr pow other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def / (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr div other
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def % (other: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr mod other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def + (other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[DType, Ax] = arr add other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def - (other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[DType, Ax] = arr sub other
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def * (other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[DType, Ax] = arr mul other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def ** (other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[DType, Ax] = arr pow other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def / (other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[DType, Ax] = arr div other
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def % (other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[DType, Ax] = arr mod other 
 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def > (other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr gt other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def >= (other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr gte other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def < (other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr lt other 
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def <= (other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr lte other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def > (other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[Boolean, Ax] = arr gt other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def >= (other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[Boolean, Ax] = arr gte other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def < (other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[Boolean, Ax] = arr lt other 
+  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def <= (other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[Boolean, Ax] = arr lte other 
   
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: DJLNDArray[DType, Ax]) def ====(other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr eq other
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: DJLNDArray[DType, Ax]) def !===(other: DJLNDArray[DType, Ax]): DJLNDArray[Boolean, Ax] = arr neq other
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: DJLNDArray[DType, Ax]) def ====(other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[Boolean, Ax] = arr eq other
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: DJLNDArray[DType, Ax]) def !===(other: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[Boolean, Ax] = arr neq other
 
-  extension[DType <: NumericSupported: ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def max (d: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr maximum d 
-  extension[DType <: NumericSupported: ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def min (d: DJLNDArray[DType, Ax]): DJLNDArray[DType, Ax] = arr minimum d 
+  extension[DType <: NumericSupported: ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def max (d: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[DType, Ax] = arr maximum d 
+  extension[DType <: NumericSupported: ClassTag: Numeric: IsNumericSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]) def min (d: DJLNDArray[DType, Ax])(implicit ev: Ax =!= Axes): DJLNDArray[DType, Ax] = arr minimum d 
 
   //DJL-mxnet only actually supports Float here (gpu only?)
   extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes, Bx <: Axes, Cx <: Axes](arr: DJLNDArray[DType, Ax]) def matmul (other: DJLNDArray[DType, Bx]): DJLNDArray[DType, Cx] = arr dot other

@@ -13,6 +13,7 @@ import org.sciscala.ndscala.union._
 import org.platanios.tensorflow.api._
 import org.emergentorder.onnx.Tensors.Axes
 import org.emergentorder.onnx.Tensors.Tensor._
+import org.emergentorder.=!=
 //import org.platanios.tensorflow.api.tensors.ops.Math._ 
 
 object TensorFlowOps {
@@ -90,23 +91,23 @@ given NDArrayOps[TFTensor]{
 
   //Binary TFTensor ops
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def + (other: TFTensor[DType, Ax]): TFTensor[DType, Ax] = arr + other 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def - (other: TFTensor[DType, Ax]): TFTensor[DType, Ax] = arr - other
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def * (other: TFTensor[DType, Ax]): TFTensor[DType, Ax] = arr * other 
-  extension[DType <: NumericSupported :  ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def ** (other: TFTensor[DType, Ax]): TFTensor[DType, Ax] = arr ** other 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def / (other: TFTensor[DType, Ax]): TFTensor[DType, Ax] = arr / other
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def % (other: TFTensor[DType, Ax]): TFTensor[DType, Ax] = arr % other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def + (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr + other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def - (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr - other
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def * (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr * other 
+  extension[DType <: NumericSupported :  ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def ** (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr ** other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def / (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr / other
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def % (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr % other 
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def > (other: TFTensor[DType, Ax]): TFTensor[Boolean, Ax] = arr > other 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def >= (other: TFTensor[DType, Ax]): TFTensor[Boolean, Ax] = arr >= other 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def < (other: TFTensor[DType, Ax]): TFTensor[Boolean, Ax] = arr < other 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def <= (other: TFTensor[DType, Ax]): TFTensor[Boolean, Ax] = arr <= other 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def ==== (other: TFTensor[DType, Ax]): TFTensor[Boolean, Ax] = arr === other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def > (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr > other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def >= (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr >= other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def < (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr < other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def <= (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr <= other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def ==== (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr === other 
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def !=== (other: TFTensor[DType, Ax]): TFTensor[Boolean, Ax] = arr =!= other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def !=== (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr =!= other 
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def max (d: TFTensor[DType, Ax]): TFTensor[DType, Ax] = arr maximum d 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def min (d: TFTensor[DType, Ax]): TFTensor[DType, Ax] = arr minimum d 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def max (d: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr maximum d 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def min (d: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr minimum d 
 
   extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes, Bx <: Axes, Cx <: Axes](arr: TFTensor[DType, Ax]) def matmul (other: TFTensor[DType, Bx]): TFTensor[DType, Cx] = arr tensorDot (other, arr.rank)
 }
