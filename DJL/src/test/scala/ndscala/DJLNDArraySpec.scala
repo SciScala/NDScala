@@ -4,7 +4,7 @@ package org.sciscala.ndscala
 import scala.language.implicitConversions
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.emergentorder.onnx.Tensors.{Axes, Mat, Vec}
+import org.emergentorder.onnx.Tensors.{Axes, Mat, Vec, MatShape, VecShape}
 import ai.djl._
 import ai.djl.ndarray._
 //import scala.reflect.ClassTag
@@ -49,24 +49,24 @@ import DJLOps._
   }
 
   "DJLNDArray" should "add" in {
-    val arr: DJLNDArray[Int, Axes] = (Array(42, 84), Mat(1,2))
-    doAssert(((arr:DJLNDArray[Int, Axes]) + (arr:DJLNDArray[Int, Axes])) ==== (Array(84, 168), Mat(1,2)))
+    val arr: DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]] = (Array(42, 84), Mat(1,2))
+    doAssert(((arr:DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]]) + (arr:DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]])) ==== (Array(84, 168), Mat(1,2)))
   }
 
   "DJLNDArray" should "subtract" in {
-    val arr: DJLNDArray[Int, Axes] = (Array(42, 84), Mat(1,2))
-    doAssert(((arr: DJLNDArray[Int, Axes]) - (arr: DJLNDArray[Int, Axes])) ==== (Array(0, 0), Mat(1,2)))
+    val arr: DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]] = (Array(42, 84), Mat(1,2))
+    doAssert(((arr: DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]]) - (arr: DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]])) ==== (Array(0, 0), Mat(1,2)))
   }
 
   "DJLNDArray" should "multiply" in {
-    val arr: DJLNDArray[Int, Axes] = (Array(42, 84), Mat(1,2))
-    doAssert(((arr: DJLNDArray[Int, Axes]) * (arr: DJLNDArray[Int, Axes])) ==== (Array(1764, 7056), Mat(1,2)))
+    val arr: DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]] = (Array(42, 84), Mat(1,2))
+    doAssert(((arr: DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]]) * (arr: DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]])) ==== (Array(1764, 7056), Mat(1,2)))
   }
 
   //TODO: weirdness here with Int
   "DJLNDArray" should "divide" in {
-    val arr: DJLNDArray[Float, Axes] = (Array(42.0f, 84.0f), Mat(1,2))
-    doAssert(((arr: DJLNDArray[Float, Axes]) / (arr: DJLNDArray[Float, Axes])) ==== (Array(1.0f, 1.0f), Mat(1,2)))
+    val arr: DJLNDArray[Float, Mat[?,?,?, MatShape[1,2]]] = (Array(42.0f, 84.0f), Mat(1,2))
+    doAssert(((arr: DJLNDArray[Float, Mat[?,?,?, MatShape[1,2]]]) / (arr: DJLNDArray[Float, Mat[?,?,?, MatShape[1,2]]])) ==== (Array(1.0f, 1.0f), Mat(1,2)))
   }
 
   "DJLNDArray" should "equal" in {
@@ -122,8 +122,8 @@ import DJLOps._
   }
 */
   "DJLNDArray" should "unary subtract" in {
-    val arr: DJLNDArray[Int, Axes] = (Array(42, 84), Mat(1,2))
-    doAssert((- (arr:DJLNDArray[Int, Axes])) ==== (Array(-42, -84), Mat(1,2)))
+    val arr: DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]] = (Array(42, 84), Mat(1,2))
+    doAssert((- (arr:DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]])) ==== (Array(-42, -84), Mat(1,2)))
   }
 
   "DJLNDArray" should "abs" in {
@@ -172,12 +172,12 @@ import DJLOps._
   }
 
   "DJLNDArray" should "cos" in {
-    val arr: DJLNDArray[Float, Axes] = (Array(-1.0f, 0.0f, 1.0f), Mat(1,3))
+    val arr: DJLNDArray[Float, Mat[?,?,?, MatShape[1,2]]] = (Array(-1.0f, 0.0f, 1.0f), Mat(1,3))
     val result = arr.cos()
     println(result._1(0))
     println(result._1(1))
     println(result._1(2))
-    doAssert((result:DJLNDArray[Float, Axes]) ==== (Array(0.5403023f, 1.0f, 0.5403023f), Mat(1,3)))
+    doAssert((result:DJLNDArray[Float, Mat[?,?,?, MatShape[1,2]]]) ==== (Array(0.5403023f, 1.0f, 0.5403023f), Mat(1,3)))
   }
 
   "DJLNDArray" should "sin" in {
@@ -218,13 +218,13 @@ import DJLOps._
   //TODO: test sigmoid, relu
 
   "DJLNDArray" should "pow" in {
-    val arr: DJLNDArray[Double, Axes] = (Array(42.0, 84.0), Mat(1,2))
-    doAssert((arr ** (Array(2.0), Vec(1))) ==== (Array(1764.0, 7056.0), Mat(1,2)))
+    val arr: DJLNDArray[Double, Mat[?,?,?, MatShape[1,2]]] = (Array(42.0, 84.0), Mat(1,2))
+    doAssert((arr ** (Array(2.0, 2.0), Mat(1,2))) ==== (Array(1764.0, 7056.0), Mat(1,2)))
   }
 
   "DJLNDArray" should "mod" in {
-    val arr: DJLNDArray[Int, Axes] = (Array(42, 84), Mat(1,2))
-    doAssert((arr % (Array(40), Vec(1))) ==== (Array(2,4), Mat(1,2)))
+    val arr: DJLNDArray[Int, Mat[?,?,?, MatShape[1,2]]] = (Array(42, 84), Mat(1,2))
+    doAssert((arr % (Array(40, 40), Mat(1, 2))) ==== (Array(2,4), Mat(1,2)))
   }
 
   "DJLNDArray" should "gt" in {
