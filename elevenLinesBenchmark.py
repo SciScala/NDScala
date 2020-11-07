@@ -6,7 +6,7 @@ y = np.random.random((1,10000)).T.astype('float32')
 
 print(X.shape)
 print(X.dtype)
-iter = 5
+iter = 50
 
 def elevenlines(): 
     syn0 = 2*np.random.random((10000,10000)).astype('float32') - 1
