@@ -1,16 +1,18 @@
 import numpy as np
 import time
+#import mkl
+#mkl.set_num_threads(4)
 
 X = np.random.random((10000,10000)).astype('float32') 
-y = np.random.random((1,10000)).T.astype('float32')
+y = np.random.random((1000,10000)).T.astype('float32')
 
 print(X.shape)
 print(X.dtype)
-iter = 50
+iter = 5
 
 def elevenlines(): 
     syn0 = 2*np.random.random((10000,10000)).astype('float32') - 1
-    syn1 = 2*np.random.random((10000,1)).astype('float32') - 1
+    syn1 = 2*np.random.random((10000,1000)).astype('float32') - 1
     tic = time.time()
     for j in range(iter): 
         l1 = 1/(1+np.exp(-(np.dot(X,syn0))))  

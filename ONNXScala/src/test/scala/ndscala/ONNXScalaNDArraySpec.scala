@@ -5,6 +5,8 @@ import scala.language.implicitConversions
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.emergentorder.onnx.Tensors._
+import org.emergentorder.compiletime._
+import io.kjaer.compiletime._
 //import scala.reflect.ClassTag
 import ONNXScalaOps._
 
@@ -38,74 +40,81 @@ class ONNXScalaTensorSpec extends AnyFlatSpec {
   }
 */
 
+type TT = "TensorTypeDenotation"
+type TD = "TensorShapeDenotation" ##: TSNil
+
+
 // TODO: Don't do this, it silences match errors
-  def doAssert(t: Tensor[Boolean, ?]) = {
-    assert(t._1(0))
+  def doAssert(t: Tensor[Boolean, Axes]) = {
+    assert(t.data(0))
   }
 
   "Tensor" should "add" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    doAssert(((arr + arr) ====Tensor(Array(84, 168), 1,2)))
+    val arr: Tensor[Int,(TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert(((arr + arr) ====Tensor(Array(84, 168),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)))
   }
 
   "Tensor" should "subtract" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    doAssert((arr - arr) ==== Tensor(Array(0, 0), 1,2))
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr - arr) ==== Tensor(Array(0, 0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "multiply" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    doAssert((arr * arr) ==== Tensor(Array(1764, 7056), 1,2))
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr * arr) ==== Tensor(Array(1764, 7056),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "divide" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    doAssert((arr / arr) ==== Tensor(Array(1, 1), 1, 2))
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr / arr) ==== Tensor(Array(1, 1),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "equal" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    doAssert(arr ==== Tensor(Array(42, 84), 1, 2)) 
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert(arr ==== Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)) 
   }
 
   "Tensor" should "not equal" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2) 
-    val result = (arr !=== Tensor(Array(42, 84), 1, 2))
-    assert(result._1(0) == false)
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil) 
+    val result = (arr !=== Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
+    assert(result.data(0) == false)
   }
-
+ 
   "Tensor" should "reshape" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    doAssert((arr reShape Array(2,1)) ==== Tensor(Array(42, 84), 2,1))
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult: Tensor[Int, (TT, TD, 2 #: 1 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
+    doAssert((arr.reShape[Int, TT, TD, 1 #: 2 #: SNil, TT, TD, 2 #: 1 #: SNil](Array(2,1))) ==== expectedResult)
   }
 
   "Tensor" should "transpose" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[2,2]]] = Tensor(Array(1, 2, 3, 4), 2, 2)
-    doAssert(arr.transpose ==== Tensor(Array(1, 3, 2, 4), 2, 2))
+    val arr: Tensor[Int, (TT, TD, 2 #: 2 #: SNil)] = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil)
+    doAssert(arr.transpose ==== Tensor(Array(1, 3, 2, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil))
   }
 
   "Tensor" should "transpose with axes" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[2,2]]] = Tensor(Array(1, 2, 3, 4), 2, 2)
-    doAssert((arr.transpose(Array(1,0), None)) ==== Tensor(Array(1, 3, 2, 4), 2, 2))
+    val arr: Tensor[Int, (TT, TD, 2 #: 2 #: SNil)] = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil)
+    doAssert((arr.transpose(Array(1,0), None)) ==== Tensor(Array(1, 3, 2, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil))
   }
 
   "Tensor" should "round" in {
-    val arr: Tensor[Double, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(41.7, 84.3), 1, 2)
-    doAssert((arr.round()) ==== Tensor(Array(42.0, 84.0), 1, 2))
+    val arr: Tensor[Double, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(41.7, 84.3),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr.round()) ==== Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "slice" in {
-    val arr: Tensor[Int, Vec[?,?, VecShape[4]]] = Tensor(Array(1, 2, 3, 4), 4 )
-    doAssert((arr.slice(1,3, None)) ==== Tensor(Array(2, 3), 2))
+    val arr: Tensor[Int, (TT, TD, 4 #: SNil)] = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
+    val expectedResult = Tensor(Array(2, 3),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
+    doAssert((arr.slice[Int, TT, TD, 4 #: SNil, TT, TD, 2 #: SNil](1,3, None)) ==== expectedResult)
   }
 
   "Tensor" should "squeeze" in {
-    val arr: Tensor[Int, Mat[?,?,?, MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    doAssert((arr squeeze (Array(0), None)) ==== Tensor(Array(42, 84), 2))
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
+    doAssert((arr.squeeze[Int, TT, TD, 1 #: 2 #: SNil, TT, TD, 2 #: SNil](Array(0), None)) ==== expectedResult)
   }
 
   "Tensor" should "rank" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     arr.rank == 2
   }
 
@@ -116,35 +125,35 @@ class ONNXScalaTensorSpec extends AnyFlatSpec {
   }
 */
   "Tensor" should "unary subtract" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    doAssert((-arr) ==== Tensor(Array(-42, -84),  1, 2))
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((-arr) ==== Tensor(Array(-42, -84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "abs" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(-42, 84), 1, 2)
-    doAssert((arr.abs()) ==== Tensor(Array(42, 84), 1, 2))
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(-42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr.abs()) ==== Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "ceil" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(-1.5f, 1.2f), 1, 2)
-    doAssert((arr.ceil()) ==== Tensor(Array(-1.0f, 2.0f), 1,2))
+    val arr: Tensor[Float, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(-1.5f, 1.2f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr.ceil()) ==== Tensor(Array(-1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "floor" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(-1.5f, 1.2f), 1, 2)
-    doAssert((arr.floor()) ==== Tensor(Array(-2.0f, 1.0f), 1, 2))
+    val arr: Tensor[Float, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(-1.5f, 1.2f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr.floor()) ==== Tensor(Array(-2.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "log" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(1.0f, 10.0f), 1, 2)
-    doAssert((arr.log()) ==== Tensor(Array(0.0f, 2.30258512f), 1, 2))
+    val arr: Tensor[Float, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(1.0f, 10.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr.log()) ==== Tensor(Array(0.0f, 2.30258512f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "exp" in {
-    val arr: Tensor[Double, Mat[?,?,?,MatShape[1,3]]] = Tensor(Array(-1.0, 0.0, 1.0), 1, 3)
+    val arr: Tensor[Double, (TT, TD, 1 #: 3 #: SNil)] = Tensor(Array(-1.0, 0.0, 1.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
     val exp = arr.exp()
     //Tiny difference between CUDA and cpu - maybe fixed in latest CUDA
-    doAssert((exp) ==== Tensor(Array(0.3678794411714423, 1.0, 2.718281828459045), 1, 3))
+    doAssert((exp) ==== Tensor(Array(0.3678794411714423, 1.0, 2.718281828459045),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   /*
@@ -161,106 +170,107 @@ class ONNXScalaTensorSpec extends AnyFlatSpec {
   }
 */
   "Tensor" should "sqrt" in {
-    val arr: Tensor[Double, Mat[?,?,?,MatShape[1,3]]] = Tensor(Array(1.0, 4.0, 9.0), 1, 3)
-    doAssert((arr.sqrt()) ==== Tensor(Array(1.0, 2.0, 3.0), 1, 3))
+    val arr: Tensor[Double, (TT, TD, 1 #: 3 #: SNil)] = Tensor(Array(1.0, 4.0, 9.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.sqrt()) ==== Tensor(Array(1.0, 2.0, 3.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor" should "cos" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,3]]] = Tensor(Array(-1.0f, 0.0f, 1.0f), 1, 3)
-    doAssert((arr.cos()) ==== Tensor(Array(0.5403023f, 1.0f, 0.5403023f), 1, 3))
+    val arr: Tensor[Float, (TT, TD, 1 #: 3 #: SNil)] = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.cos()) ==== Tensor(Array(0.5403023f, 1.0f, 0.5403023f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor" should "sin" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,3]]] = Tensor(Array(-1.0f, 0.0f, 1.0f), 1, 3)
-    doAssert((arr.sin()) ==== Tensor(Array(-0.84147096f, 0.0f, 0.84147096f), 1, 3))
+    val arr: Tensor[Float, (TT, TD, 1 #: 3 #: SNil)] = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.sin()) ==== Tensor(Array(-0.84147096f, 0.0f, 0.84147096f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor" should "tan" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,3]]] = Tensor(Array(-1.0f, 0.0f, 1.0f), 1, 3)
-    doAssert((arr.tan()) ==== Tensor(Array(-1.5574077f, 0.0f, 1.5574077f), 1, 3))
+    val arr: Tensor[Float, (TT, TD, 1 #: 3 #: SNil)] = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.tan()) ==== Tensor(Array(-1.5574077f, 0.0f, 1.5574077f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor" should "tanh" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,3]]] = Tensor(Array(-1.0f, 0.0f, 1.0f), 1, 3)
-    doAssert((arr.tanh()) ==== Tensor(Array(-0.7615942f, 0.0f, 0.7615942f), 1, 3))
+    val arr: Tensor[Float, (TT, TD, 1 #: 3 #: SNil)] = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.tanh()) ==== Tensor(Array(-0.7615942f, 0.0f, 0.7615942f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor" should "acos" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,3]]] = Tensor(Array(-1.0f, 0.0f, 1.0f), 1, 3)
-    doAssert((arr.acos()) ==== Tensor(Array(3.1415927f, 1.5707964f, 0.0f), 1, 3))
+    val arr: Tensor[Float, (TT, TD, 1 #: 3 #: SNil)] = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.acos()) ==== Tensor(Array(3.1415927f, 1.5707964f, 0.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor" should "asin" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,3]]] = Tensor(Array(-1.0f, 0.0f, 1.0f), 1, 3)
-    doAssert((arr.asin()) ==== Tensor(Array(-1.5707964f, 0.0f, 1.5707964f), 1, 3))
+    val arr: Tensor[Float, (TT, TD, 1 #: 3 #: SNil)] = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.asin()) ==== Tensor(Array(-1.5707964f, 0.0f, 1.5707964f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor" should "atan" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,3]]] = Tensor(Array(-1.0f, 0.0f, 1.0f), 1, 3)
-    doAssert((arr.atan()) ==== Tensor(Array(-0.7853982f, 0.0f, 0.7853982f), 1, 3))
+    val arr: Tensor[Float, (TT, TD, 1 #: 3 #: SNil)] = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.atan()) ==== Tensor(Array(-0.7853982f, 0.0f, 0.7853982f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor" should "atanh" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,3]]] = Tensor(Array(-0.5f, 0.0f, 0.5f), 1, 3)
-    doAssert((arr.atanh()) ==== Tensor(Array(-0.54930615f, 0.0f, 0.54930615f), 1, 3))
+    val arr: Tensor[Float, (TT, TD, 1 #: 3 #: SNil)] = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.atanh()) ==== Tensor(Array(-0.54930615f, 0.0f, 0.54930615f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   //TODO: test sigmoid, relu
 
   "Tensor" should "pow" in {
-    val arr: Tensor[Double, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42.0, 84.0), 1, 2)
-    doAssert((arr ** Tensor(Array(2.0, 2.0), 1, 2)) ==== Tensor(Array(1764.0, 7056.0), 1, 2))
+    val arr: Tensor[Double, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr ** Tensor(Array(2.0, 2.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)) ==== Tensor(Array(1764.0, 7056.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "mod" in {
-   val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    doAssert((arr % Tensor(Array(40, 40), 1, 2)) ==== Tensor(Array(2,4), 1, 2))
+   val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr % Tensor(Array(40, 40),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)) ==== Tensor(Array(2,4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "gt" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    val result = (arr > Tensor(Array(42, 80), 1, 2))
-    assert(result._1(0) == false)
-    assert(result._1(1) == true)
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val result = (arr > Tensor(Array(42, 80),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
+    assert(result.data(0) == false)
+    assert(result.data(1) == true)
   }
 
   "Tensor" should "gte" in {
-    val arr: Tensor[Long, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42l, 84l), 1,2)
-    val result = (arr >= Tensor(Array(42l, 80l), 1, 2))
-    assert(result._1(0) == true)
-    assert(result._1(1) == true) 
+    val arr: Tensor[Long, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42l, 84l),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val result = (arr >= Tensor(Array(42l, 80l),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
+    assert(result.data(0) == true)
+    assert(result.data(1) == true) 
   }
 
   "Tensor" should "lt" in {
-    val arr: Tensor[Int, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42, 84), 1, 2)
-    val result = (arr < Tensor(Array(42, 80), 1, 2))
-    assert(result._1(0) == false)
-    assert(result._1(1) == false) 
+    val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val result = (arr < Tensor(Array(42, 80),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
+    assert(result.data(0) == false)
+    assert(result.data(1) == false) 
   }
 
   "Tensor" should "lte" in {
-    val arr: Tensor[Long, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42l, 84l), 1, 2)
-    val result = (arr <= Tensor(Array(42l, 80l), 1, 2))
-    assert(result._1(0) == true)
-    assert(result._1(1) == false) 
+    val arr: Tensor[Long, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42l, 84l),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val result = (arr <= Tensor(Array(42l, 80l),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
+    assert(result.data(0) == true)
+    assert(result.data(1) == false) 
   }
 
   "Tensor" should "max" in {
-    val arr: Tensor[Float, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42.0f, 84.0f), 1, 2)
-    val other: Tensor[Float, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(50.0f, 80.0f), 1, 2)
-    doAssert((arr max other) ==== Tensor(Array(50.0f, 84.0f), 1, 2))
+    val arr: Tensor[Float, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42.0f, 84.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val other: Tensor[Float, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(50.0f, 80.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr max other) ==== Tensor(Array(50.0f, 84.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "min" in {
-    val arr: Tensor[Double, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42.0, 84.0), 1, 2)
-    val other: Tensor[Double, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(50.0, 80.0), 1, 2)
-    doAssert((arr min other) ==== Tensor(Array(42.0, 80.0), 1, 2))
+    val arr: Tensor[Double, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val other: Tensor[Double, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(50.0, 80.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr min other) ==== Tensor(Array(42.0, 80.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
   "Tensor" should "matmul" in {
-    val arr: Tensor[Double, Mat[?,?,?,MatShape[1,2]]] = Tensor(Array(42.0, 84.0), 1, 2)
-    val other: Tensor[Double, Mat[?,?,?,MatShape[2,1]]] = Tensor(Array(42.0, 84.0), 2, 1)
-    val result = (arr matmul other) ==== (Array(8820.0), Mat(1,1))
+    val arr: Tensor[Double, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val other: Tensor[Double, (TT, TD, 2 #: 1 #: SNil)] = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
+    val expectedResult: Tensor[Double, (TT, TD, 1 #: 1 #: SNil)] = Tensor(Array(8820.0), valueOf[TT], "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    val result = (arr.matmul[Double, 1, 2, 1, TT,TD, 1 #: 2 #: SNil, TT, TD,  2 #: 1 #: SNil](other)) ==== expectedResult
     doAssert(result)
   }
 }

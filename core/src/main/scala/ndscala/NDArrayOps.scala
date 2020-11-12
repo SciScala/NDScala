@@ -3,8 +3,12 @@ package org.sciscala.ndscala
 import org.sciscala.ndscala.union._
 import scala.reflect.ClassTag
 import spire.math.Numeric
+
 import org.emergentorder.onnx.Tensors._
-import org.emergentorder.=!=
+//import org.emergentorder.=!=
+import io.kjaer.compiletime._
+import org.emergentorder.compiletime._
+import org.emergentorder.compiletime.TensorShapeDenotation.Reverse
 
 //TODO: idea for named tensor / axis types : use string singleton types
 //TODO: in simple-df : evaluate crossbow
@@ -31,65 +35,76 @@ trait NDArrayOps[SomeNDArray[_ <: AllSupported, _ <: Axes]] {
   // numpy does: pad, range, concat, square(Missing), argmax/min
  
   //Nullary / factory ops
-  def zeros[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int]): SomeNDArray[DType, Axes] 
-  def ones[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int]): SomeNDArray[DType, Axes] 
-  def full[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported](shape: Array[Int], value: DType): SomeNDArray[DType, Axes]
+  def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  def ones[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](shape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  def full[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](shape: Array[Int], value: DType)(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
   //TOFIX
 //  def rand[DType <: Supported : ClassTag: Numeric](shape: Array[Int]): SomeNDArray[DType]
 
   //Unary ops
   //def reshape[DType <: Supported : ClassTag: Numeric](arr: SomeNDArray[DType], newShape: Array[Int]): SomeNDArray[DType]
-  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes] (arr: SomeNDArray[DType, Ax]) def reShape(newShape: Array[Int]): SomeNDArray[DType, Bx]
-  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes](arr: SomeNDArray[DType, Ax]) def transpose: SomeNDArray[DType, Bx]
-  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes](arr: SomeNDArray[DType, Ax]) def transpose(axes: Array[Int], dummy: Option[Boolean]): SomeNDArray[DType,Bx]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax])  def round(): SomeNDArray[DType, Ax]
+    //Unary ops
+//  def reshape[DType <: Supported : ClassTag: Numeric](arr: SomeNDArray[DType], newShape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType] 
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def reShape(newShape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1]): SomeNDArray[DType, (Tt1,Td1,S1)]
+
+    extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def transpose(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): SomeNDArray[DType, (Tt,Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])]
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def transpose(axes: Array[Int], dummy: Option[Boolean])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): SomeNDArray[DType, (Tt,Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])]
+
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def round()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+
   //TODO: broaden slice, extra sugar for slice, range, squeeze, ...
-  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes] (arr: SomeNDArray[DType, Ax]) def slice(start: Int, end: Int, dummy: Option[Boolean]): SomeNDArray[DType, Bx]
-  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes] (arr: SomeNDArray[DType, Ax]) def squeeze(index: Array[Int], dummy: Option[Boolean]): SomeNDArray[DType, Bx]
-  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def rank: Int
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def slice(start: Int, end: Int, dummy: Option[Boolean])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1]): SomeNDArray[DType, (Tt1,Td1,S1)]
+
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def squeeze(index: Array[Int], dummy: Option[Boolean])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1]): SomeNDArray[DType, (Tt1,Td1,S1)]
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def rank: Int
+
+
 //  def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: SomeNDArray[DType], min: DType, max: DType): SomeNDArray[DType]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def unary_- : SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def abs(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType,Ax]) def ceil(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def floor(): SomeNDArray[DType, Ax]
+ extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def unary_- (using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def abs()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def ceil()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def floor()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+
 //  extension[DType <: Supported : ClassTag : IsSupported](arr: Seq[SomeNDArray[DType]]) def concat (axis: Int): SomeNDArray[DType]
  //TODO: reduceMean
 //  def mean[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported](arr: Seq[SomeNDArray[DType]]): SomeNDArray[DType] 
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def log(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def exp(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def sqrt(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def cos(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def sin(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def tan(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def tanh(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def acos(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def asin(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def atan(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def atanh(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def sigmoid(): SomeNDArray[DType, Ax]
-  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def relu(): SomeNDArray[DType, Ax]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def log()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def exp()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def sqrt()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def cos()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def cosh()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def sin()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def sinh()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def tan()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def tanh()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def acos()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def acosh()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def asin()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def asinh()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def atan()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def atanh()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def sigmoid()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def relu()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
 
-  //Binary NDArray ops
+  
+//Binary NDArray ops
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def +(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def -(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def *(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def **(d: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def /(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def %(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
 
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes, Bx <: Axes, Cx <: Axes] (arr: SomeNDArray[DType, Ax]) def matmul(other: SomeNDArray[DType, Bx]): SomeNDArray[DType, Cx]
-
-  extension[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def +(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def -(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def *(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def **(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def /(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def %(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def >(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def >=(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def <(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def <=(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
-
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def >(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[Boolean, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def >=(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[Boolean, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def <(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[Boolean, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def <=(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[Boolean, (Tt,Td,S)]
   //Restricted to numeric only because of TF
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def ====(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
-  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def !===(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[Boolean, Ax]
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def ====(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[Boolean, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def !===(other: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[Boolean, (Tt,Td,S)]
 
   //TF-scala conflicts with max and min
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def max(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes] (arr: SomeNDArray[DType, Ax]) def min(other: SomeNDArray[DType, Ax])(implicit ev: Ax =!= Axes): SomeNDArray[DType, Ax]
-
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def max(d: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def min(d: SomeNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Dim0 <: Dimension, Dim1 <: Dimension, Dim2 <: Dimension, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Dim0 #: Dim1 #:SNil, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Dim1 #: Dim2 #: SNil] (arr: SomeNDArray[DType, (Tt,Td,S)]) def matmul(other: SomeNDArray[DType, (Tt1,Td1,S1)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s2: ShapeOf[Dim0 #: Dim2 #: SNil]): SomeNDArray[DType, (Tt,Td,Dim0 #: Dim2 #: SNil)]
 }
