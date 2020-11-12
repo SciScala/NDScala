@@ -1,88 +1,113 @@
 package org.sciscala.ndscala 
 
 import scala.util.Random
-import scala.collection.immutable.ArraySeq
 import scala.reflect.ClassTag
+import scala.language.implicitConversions
 import spire.random.Dist
 import spire.math.Numeric
-import spire.implicits._
+//import spire.implicits._
 import org.sciscala.ndscala.union._
 //import org.platanios.tensorflow.api.tensors._
 //import org.platanios.tensorflow.api.core.types._
 //import org.platanios.tensorflow.api.core._
 import org.platanios.tensorflow.api._
+import org.emergentorder.onnx.Tensors.Axes
+import org.emergentorder.onnx.Tensors.Tensor._
+import org.emergentorder.=!=
+//import org.platanios.tensorflow.api.tensors.ops.Math._ 
 
 object TensorFlowOps {
-//  implicit def convert[DType: ClassTag: TF](d: DType): Tensor[DType] = Tensor(d) 
-  implicit def toTensor[DType: ClassTag: TF](t: (ArraySeq[DType], ArraySeq[Int])): Tensor[DType] = Tensor(t._1).reshape(Shape(t._2: _*))
-  implicit def fromTensor[DType: ClassTag: TF](t: Tensor[DType]): (ArraySeq[DType], ArraySeq[Int]) = (ArraySeq(t.toArray: _*) , ArraySeq(t.shape.toArray: _*)) 
+//  implicit def convert[DType: ClassTag: TF](d: DType): TFTensor[DType] = TFTensor(d) 
+  implicit def toTFTensor[DType <: AllSupported : ClassTag: TF, Ax <: Axes](t: (Array[DType], Ax)): TFTensor[DType, Ax] = Tensor(t._1).reshape(Shape(t.shape: _*))
+  implicit def fromTFTensor[DType <: AllSupported : ClassTag: TF, Ax <: Axes](t: TFTensor[DType, Ax]): (Array[DType], Ax) = {
+    val tens = create(Array(t.toArray: _*) , Array(t.shape.toArray: _*)) 
+    (tens._1, tens._2)
+  }
 }
 
-class TensorFlowOps extends NDArrayOps[Tensor]{
-  import TensorFlowOps._
+type TFTensor[DType <: AllSupported, Ax <: Axes] = Tensor[DType]
 
+given NDArrayOps[TFTensor]{
+//  import TFTensorFlowOps._
+
+//import org.platanios.tensorflow.api.tensors.ops.Math._ 
+//  implicit def toTFTensor[DType: ClassTag: TF](t: (Array[DType], Array[Int])): TFTensor[DType] = TFTensor(t._1).reshape(Shape(t._2: _*))
+//  implicit def fromTFTensor[DType: ClassTag: TF](t: TFTensor[DType]): (Array[DType], Array[Int]) = (Array(t.toArray: _*) , Array(t.shape.toArray: _*)) 
   //Nullary / factory ops
-  def zeros[DType : ClassTag: Numeric: IsSupported: TF](shape: ArraySeq[Int]): Tensor[DType] = Tensor.zeros[DType](Shape(shape: _*))
-  def ones[DType : ClassTag: Numeric: IsSupported: TF](shape: ArraySeq[Int]): Tensor[DType] = Tensor.ones[DType](Shape(shape: _*)) 
-  def full[DType : ClassTag: Numeric: IsSupported: TF](shape: ArraySeq[Int], value: DType): Tensor[DType] = Tensor.fill(Shape(shape: _*))(value)
+  def zeros[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int]): TFTensor[DType, Axes] = ??? //broken: needs tf type in sig TFTensor.zeros[DType](Shape(shape: _*))
+  def ones[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int]): TFTensor[DType, Axes] = ??? //broken: TFTensor.ones[DType](Shape(shape: _*)) 
+  def full[DType <: NumericSupported : ClassTag: Numeric: IsNumericSupported](shape: Array[Int], value: DType): TFTensor[DType, Axes] = ??? //broken: TFTensor.fill(Shape(shape: _*))(value)
 
   
   //TODO: fix rand
-  def rand[DType : ClassTag: Numeric: IsSupported](shape: ArraySeq[Int]): Tensor[DType] = ???
+//  def rand[DType <: Supported : ClassTag: Numeric](shape: Array[Int]): TFTensor[DType] = ???
 
   //Unary ops
-  def reshape[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], newShape: ArraySeq[Int]): Tensor[DType] = arr.reshape(newShape)
-  def transpose[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType]): Tensor[DType] = arr.transpose()
-  def transpose[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], axes: ArraySeq[Int]): Tensor[DType] = arr.transpose(Shape(axes: _*))
-  def round[DType : ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType]  = arr.round
+  //caution: infinite
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes](arr: TFTensor[DType, Ax]) def reShape(newShape: Array[Int]): TFTensor[DType, Bx] = arr.reshape(Shape(newShape).asArray)
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes](arr: TFTensor[DType, Ax]) def transpose: TFTensor[DType, Bx] = arr.transpose()
+  //caution: infinite
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes](arr: TFTensor[DType, Ax]) def transpose(axes: Array[Int], dummy: Option[Boolean]): TFTensor[DType, Bx] = arr.transpose(Shape(axes: _*))
+  extension[DType <: FloatSupported : ClassTag: Numeric: IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def round(): TFTensor[DType, Ax]  = arr.round
   //Top-level slice only
-  def slice[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], start: Int, end: Int): Tensor[DType] = arr(start :: end)
+  extension[DType <: Supported : ClassTag: IsSupported, Ax <: Axes, Bx <: Axes](arr: TFTensor[DType, Ax]) def slice(start: Int, end: Int, dummy: Option[Boolean]): TFTensor[DType, Bx] = arr(start :: end)
 
-  def squeeze[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], index: ArraySeq[Int]): Tensor[DType] = arr.squeeze(index)
+  //Caution: infinite
 
-  def rank[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType]): Int = arr.rank
-//  def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType], min: DType, max: DType): Tensor[DType] = arr.clip(min, max) 
+  //TODO: add this squeeze to base API
+  extension[DType <: Supported : ClassTag : IsSupported, Ax <: Axes, Bx <: Axes](arr: TFTensor[DType, Ax]) def squeeze: TFTensor[DType, Bx] = arr.squeeze(Array(0)) 
+  extension[DType <: Supported : ClassTag: IsSupported, Ax <: Axes, Bx <: Axes](arr: TFTensor[DType, Ax]) def squeeze(index: Array[Int], dummy: Option[Boolean]): TFTensor[DType, Bx] =  arr.squeeze(index)
 
-  def unary_-[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType]) : Tensor[DType] = - arr 
+  extension[DType <: Supported : ClassTag: IsSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def rank: Int = arr.rank
+//  def clip[DType : ClassTag: Numeric: IsFloatSupported](arr: TFTensor[DType], min: DType, max: DType): TFTensor[DType] = arr.clip(min, max) 
 
-  def abs[DType: ClassTag: Numeric: IsSupported](arr: Tensor[DType]): Tensor[DType] = arr.abs 
-  def ceil[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.ceil
-  def floor[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.floor 
-//  def concat[DType: ClassTag: Numeric: IsSupported](arr: Tensor[DType]*): Tensor[DType] = onnx.Concat11("concat", Some(ndArrayToTensor(arr)))))
-  def log[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType]= arr.log 
-  def exp[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.exp
-  def sqrt[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.sqrt
-  def cos[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.cos
-  def cosh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.cosh
-  def sin[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.sin
-  def sinh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.sinh
-  def tan[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.tan
-  def tanh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.tanh
-  def acos[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.acos
-  def acosh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.acosh
-  def asin[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.asin
-  def asinh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.asinh
-  def atan[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = arr.atan
-//  def atanh[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType]): Tensor[DType] = onnx.Atanh9("atanh", Some(arr))
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def unary_- : TFTensor[DType, Ax] = - arr 
 
-  //Binary Tensor ops
+//  def concat[DType <: Supported : ClassTag : IsSupported](axis: Int, arr: Seq[TFTensor[DType]]): TFTensor[DType] = ???
+//  def mean[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported](arr: Seq[TFTensor[DType]]): TFTensor[DType] = ???
 
-  def +[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr + other 
-  def -[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr - other
-  def *[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr * other 
-  def **[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr ** other 
-  def /[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr / other
-  def %[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr % other 
+  //Also, time to get rid of classtag"?
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def abs(): TFTensor[DType, Ax] = arr.abs
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def ceil(): TFTensor[DType, Ax] = arr.ceil
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def floor(): TFTensor[DType, Ax] = arr.floor 
 
-  def >[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr > other 
-  def >=[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr >= other 
-  def <[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr < other 
-  def <=[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr <= other 
-  def ===[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr === other 
-  def !==[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[Boolean] = arr =!= other 
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def log(): TFTensor[DType, Ax]= arr.log 
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def exp(): TFTensor[DType, Ax] = arr.exp
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def sqrt(): TFTensor[DType, Ax] = arr.sqrt
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def cos(): TFTensor[DType, Ax] = arr.cos
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def cosh(): TFTensor[DType, Ax] = arr.cosh
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def sin(): TFTensor[DType, Ax] = arr.sin
+  extension[DType <:FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def sinh(): TFTensor[DType, Ax] = arr.sinh
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def tan(): TFTensor[DType, Ax] = arr.tan
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def tanh(): TFTensor[DType, Ax] = arr.tanh
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def acos(): TFTensor[DType, Ax] = arr.acos
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def acosh(): TFTensor[DType, Ax] = arr.acosh
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def asin(): TFTensor[DType, Ax] = arr.asin
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def asinh(): TFTensor[DType, Ax] = arr.asinh
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def atan(): TFTensor[DType, Ax] = arr.atan
+  extension[DType <: FloatSupported: ClassTag: Numeric : IsFloatSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def atanh(): TFTensor[DType, Ax] = arr.atanh
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: TFTensor[DType, Ax]) def sigmoid(): TFTensor[DType, Ax] = ???
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Ax <: Axes] (arr: TFTensor[DType, Ax]) def relu(): TFTensor[DType, Ax] = ???
 
-  def max[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType], d: Tensor[DType]): Tensor[DType] = arr maximum d 
-  def min[DType: ClassTag: Numeric: IsFloatSupported](arr: Tensor[DType], d: Tensor[DType]): Tensor[DType] = arr minimum d 
+  //Binary TFTensor ops
 
-  def dot[DType : ClassTag: Numeric: IsSupported](arr: Tensor[DType], other: Tensor[DType]): Tensor[DType] = arr tensorDot (other, arr.rank)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def + (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr + other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def - (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr - other
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def * (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr * other 
+  extension[DType <: NumericSupported :  ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def ** (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr ** other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def / (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr / other
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def % (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr % other 
+
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def > (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr > other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def >= (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr >= other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def < (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr < other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def <= (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr <= other 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def ==== (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr === other 
+
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def !=== (other: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[Boolean, Ax] = arr =!= other 
+
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def max (d: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr maximum d 
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes](arr: TFTensor[DType, Ax]) def min (d: TFTensor[DType, Ax])(implicit ev: Ax =!= Axes): TFTensor[DType, Ax] = arr minimum d 
+
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Ax <: Axes, Bx <: Axes, Cx <: Axes](arr: TFTensor[DType, Ax]) def matmul (other: TFTensor[DType, Bx]): TFTensor[DType, Cx] = arr tensorDot (other, arr.rank)
 }
