@@ -34,7 +34,7 @@ object DJLOps {
   type DJLNDArray[DType <: AllSupported, Ax <: Axes] =NDArray
   //  implicit def convert[DType: ClassTag](d: DType): DJLNDArray[DType] = DJLNDArray(d)
   
-  implicit def toDJLNDArray[DType <: AllSupported : Numeric: ClassTag, Ax <: Axes](t: (Array[DType], Ax)): DJLNDArray[DType, Ax] = t._1 match {
+  implicit def toDJLNDArray[DType <: AllSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](t: Tensor[DType, (Tt,Td,S)]): DJLNDArray[DType, (Tt,Td,S)] = t.data match {
      case arr: Array[DType] => arr match {
       case i: Array[Int] => manager.create(arr, new DJLShape(t.shape.map(_.toLong): _*))
       case l: Array[Long] => manager.create(arr, new DJLShape(t.shape.map(_.toLong): _*))
