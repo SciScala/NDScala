@@ -9,6 +9,7 @@ import spire.math._
 import scala.language.implicitConversions
 
 import io.kjaer.compiletime._
+import io.kjaer.compiletime.Shape.NumElements
 import org.emergentorder.compiletime._
 import org.emergentorder.onnx.Tensors._
 import org.emergentorder.onnx.Tensors.Tensor._
@@ -119,7 +120,7 @@ given NDArrayOps[Tensor]{
 
   //Unary ops
 //  def reshape[DType <: Supported : ClassTag: Numeric](arr: Tensor[DType], newShape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType] 
-  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def reShape(newShape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1]): Tensor[DType, (Tt1,Td1,S1)] = onnx.ReshapeV5("reshape", arr,
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def reShape(newShape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1], sizeSeq: NumElements[S] =:= NumElements[S1]): Tensor[DType, (Tt1,Td1,S1)] = onnx.ReshapeV5("reshape", arr,
     Tensor(newShape.toArray.map(x => x.toLong), tt1.value, td1.value, Shape.fromSeq(Array(newShape.size)))) //wrong denotations
 
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def transpose(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): Tensor[DType, (Tt,Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])] = onnx.TransposeV1("transpose", None, arr)
