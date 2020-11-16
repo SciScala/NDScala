@@ -1,6 +1,6 @@
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
-val dottyVersion = "0.27.0-RC1"
+val dottyVersion = "3.0.0-M1"
 val scala213Version = "2.13.4-bin-57ae2a6"
 
 resolvers in Global += "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
@@ -15,7 +15,7 @@ Global / concurrentRestrictions := Seq(
 )
 
 crossScalaVersions := Seq(dottyVersion, scala213Version)
-lazy val scalaTest = ("org.scalatest" %% "scalatest" % "3.2.2")
+lazy val scalaTest = ("org.scalatest" %% "scalatest" % "3.2.3")
 lazy val core = (project in file("core"))
   .settings(
     name := "ndscala-core",
