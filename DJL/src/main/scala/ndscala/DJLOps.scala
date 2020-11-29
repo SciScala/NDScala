@@ -43,40 +43,40 @@ object DJLOps {
       case b: Array[Boolean]=> manager.create(arr, new DJLShape(t.shape.map(_.toLong): _*))
      }
   }
-} 
+ 
   //returns array of numbers
   //TODO: same thing, match on first element type
   //for now just use Axesi
-  /*
-  implicit def fromDJLNDArray[DType <: AllSupported : ClassTag, Ax <: Axes](t: DJLNDArray[DType, Ax]): (Array[DType], Ax) = {
+ 
+  implicit def fromDJLNDArray[DType <: AllSupported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](t: DJLNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = {
     val shape = Array(t.getShape.getShape.toArray: _*).map(x => x.toInt)
 
     t.getDataType.ordinal match{
     case 4 => {
-      val tens = (Array(t.toIntArray: _*).asInstanceOf[Array[DType]] , A)
-      (tens.data, tens._2)
+      val tens = Tensor(Array(t.toIntArray: _*).asInstanceOf[Array[DType]], tt.value, td.value, s.value)
+      tens 
     }
     case 6 => {
-      val tens = (Array(t.toLongArray: _*).asInstanceOf[Array[DType]] , shape)
-      (tens.data, tens._2)
+      val tens = Tensor(Array(t.toLongArray: _*).asInstanceOf[Array[DType]], tt.value, td.value, s.value)
+      tens 
     } 
     case 0 => {
-      val tens = (Array(t.toFloatArray: _*).asInstanceOf[Array[DType]] , shape)
-      (tens.data, tens._2)
+      val tens = Tensor(Array(t.toFloatArray: _*).asInstanceOf[Array[DType]], tt.value, td.value, s.value)
+      tens 
     }
     case 1 => {
-      val tens = (Array(t.toDoubleArray: _*).asInstanceOf[Array[DType]] , shape)
-      (tens.data, tens._2)
+      val tens = Tensor(Array(t.toDoubleArray: _*).asInstanceOf[Array[DType]], tt.value, td.value, s.value)
+      tens 
     }
     case 7 => {
-      val tens = (Array(t.toBooleanArray: _*).asInstanceOf[Array[DType]] , shape)
-      (tens.data, tens._2)
+      val tens = Tensor(Array(t.toBooleanArray: _*).asInstanceOf[Array[DType]], tt.value, td.value, s.value)
+      tens
     }
     }
 
-  }
+  }  
 }
-*/
+
 //class DJLNDArray[DType](ndarray: DJLNDArray) {
 //  require(ndarray.getDataType() =
 //}
@@ -116,7 +116,7 @@ def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt
 
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](arr: Seq[DJLNDArray[DType, (Tt,Td,S)]]) def concat (axis: Int)(using tt: ValueOf[Tt1], td: TensorShapeDenotationOf[Td1], s: ShapeOf[S1]): DJLNDArray[DType, (Tt1,Td1,S1)] = ???
  //TODO: reduceMean
-//  def mean[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported](arr: Seq[DJLNDArray[DType]]): DJLNDArray[DType]
+  extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Seq[DJLNDArray[DType, (Tt,Td,S)]]) def mean()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = ???
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def log()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = arr.log
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def exp()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = arr.exp
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def sqrt()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = arr.sqrt

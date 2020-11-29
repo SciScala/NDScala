@@ -80,7 +80,7 @@ def train = {
       println(w0)
       println(w1)
 }
-val before = System.nanoTime; for (j <- 0 until iters) {
+val before = System.nanoTime; for (j <- (0l until iters)) {
   val result = train
 }; val after = System.nanoTime
 

@@ -15,7 +15,7 @@ import ONNXScalaOps._
 import io.kjaer.compiletime._
 import org.emergentorder.compiletime._
 
-//TODO: Fix weird bug happening where allocation hangs forever (on Java 11); works on Java 14+
+//Note: Allocation takes quite a while (on Java 11); works fine on Java 14+
 val thisRandom = new Random(42)
 val iters = 5
 val lr = 0.000001f

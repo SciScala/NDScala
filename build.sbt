@@ -50,6 +50,7 @@ def tensorflowOSClassifier: String = System.getProperty("os.name").toLowerCase m
     case osName => throw new RuntimeException(s"Unknown operating system $osName")
 }
 
+/*
 lazy val tensorflow = (project in file("TensorFlow"))
   .dependsOn(core)
   .settings(
@@ -62,7 +63,7 @@ lazy val tensorflow = (project in file("TensorFlow"))
     libraryDependencies += scalaTest % Test,
     crossScalaVersions := Seq(dottyVersion, scala213Version)
   )
-
+*/
 lazy val djl = (project in file("DJL"))
   .dependsOn(core)
   .settings(
@@ -78,7 +79,7 @@ lazy val djl = (project in file("DJL"))
   )
 
 lazy val mixTest = (project in file("mixtest"))
-  .dependsOn(onnxscala, tensorflow, djl)
+  .dependsOn(onnxscala, djl)
   .settings(
     name := "mixTest"
 )
