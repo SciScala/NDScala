@@ -30,7 +30,7 @@ object ONNXScalaOps {
 //TODO: Stricter type bounds because ORT doesn't implement them all
 //TODO: dotty-style typeclass
 //Trying to load ORT shared lib from elsewhere
-given NDArrayOps[Tensor]{
+given NDArrayOps[Tensor] with {
 //  type Supported = Int | Long | Float | Double //Union[Int]#or[Long]#or[Float]#or[Double]#create
 //  type FloatSupported = Float | Double //Union[Float]#or[Double]#create
 
