@@ -81,7 +81,7 @@ object DJLOps {
 //  require(ndarray.getDataType() =
 //}
 
-given NDArrayOps[DJLOps.DJLNDArray]{
+given NDArrayOps[DJLOps.DJLNDArray] with {
 import DJLOps._ 
   //Nullary / factory ops
 def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] =  manager.zeros(new DJLShape(s.value.toSeq.map(_.toLong): _*))
@@ -157,6 +157,6 @@ def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt
   extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def min(d: DJLNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = arr minimum d
 
   //DJL-mxnet only actually supports Float here (gpu only?)
-    extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Dim0 <: Dimension, Dim1 <: Dimension, Dim2 <: Dimension, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Dim0 #: Dim1 #:SNil, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Dim1 #: Dim2 #: SNil] (arr: DJLNDArray[DType, (Tt,Td,S)]) def matmul(other: DJLNDArray[DType, (Tt1,Td1,S1)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s2: ShapeOf[Dim0 #: Dim2 #: SNil]): DJLNDArray[DType, (Tt,Td,Dim0 #: Dim2 #: SNil)] = arr dot other
+    extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Dim0 <: Dimension, Dim1 <: Dimension, Dim2 <: Dimension, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Dim0 #: Dim1 #:SNil, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Dim1 #: Dim2 #: SNil] (arr: DJLNDArray[DType, (Tt,Td,S)]) def matmul(other: DJLNDArray[DType, (Tt1,Td1,S1)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s2: ShapeOf[Dim0 #: Dim2 #: SNil]): DJLNDArray[DType, (Tt,Td,Dim0 #: Dim2 #: SNil)] = arr matMul other
   
 }

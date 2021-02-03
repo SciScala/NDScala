@@ -70,13 +70,13 @@ lazy val djl = (project in file("DJL"))
   .settings(
     name := "ndscala-djl",
     libraryDependencies += ("org.typelevel" %% "spire" % "0.17.0").withDottyCompat(dottyVersion),
-    libraryDependencies += "ai.djl" % "api" % "0.8.0",
+    libraryDependencies += "ai.djl" % "api" % "0.9.0",
 //    libraryDependencies += "ai.djl.mxnet" % "mxnet-engine" % "0.8.0",
 //    libraryDependencies += "ai.djl.mxnet" % "mxnet-native-auto" % "1.7.0-backport",
-//    libraryDependencies += "ai.djl.pytorch" % "pytorch-engine" % "0.8.0",
-//    libraryDependencies += "ai.djl.pytorch" % "pytorch-native-auto" % "1.6.0",
-    libraryDependencies += "ai.djl.tensorflow" % "tensorflow-engine" % "0.8.0",
-    libraryDependencies += "ai.djl.tensorflow" % "tensorflow-native-auto" % "2.3.1",
+    libraryDependencies += "ai.djl.pytorch" % "pytorch-engine" % "0.9.0",
+    libraryDependencies += "ai.djl.pytorch" % "pytorch-native-auto" % "1.7.0",
+//    libraryDependencies += "ai.djl.tensorflow" % "tensorflow-engine" % "0.8.0",
+//    libraryDependencies += "ai.djl.tensorflow" % "tensorflow-native-auto" % "2.3.1",
     //Only needed for Axes
     libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala" % "0.9.0",
     libraryDependencies += scalaTest % Test,
