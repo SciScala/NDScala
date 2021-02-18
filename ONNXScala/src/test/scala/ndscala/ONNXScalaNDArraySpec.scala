@@ -83,7 +83,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
   "Tensor" should "reshape" in {
     val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult: Tensor[Int, (TT, TD, 2 #: 1 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
-    doAssert((arr.reShape[Int, TT, TD, 1 #: 2 #: SNil, TT, TD, 2 #: 1 #: SNil](Array(2,1))) ==== expectedResult)
+    doAssert((arr.reShape[TT, TD, 2 #: 1 #: SNil](Array(2,1))) ==== expectedResult)
   }
 
   "Tensor" should "transpose" in {
@@ -104,13 +104,13 @@ type TD = "TensorShapeDenotation" ##: TSNil
   "Tensor" should "slice" in {
     val arr: Tensor[Int, (TT, TD, 4 #: SNil)] = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
     val expectedResult = Tensor(Array(2, 3),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
-    doAssert((arr.slice[Int, TT, TD, 4 #: SNil, TT, TD, 2 #: SNil](1,3, None)) ==== expectedResult)
+    doAssert((arr.slice[TT, TD, 2 #: SNil](1,3, None)) ==== expectedResult)
   }
 
   "Tensor" should "squeeze" in {
     val arr: Tensor[Int, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
-    doAssert((arr.squeeze[Int, TT, TD, 1 #: 2 #: SNil, TT, TD, 2 #: SNil](Array(0), None)) ==== expectedResult)
+    doAssert((arr.squeeze[TT, TD, 2 #: SNil](Array(0), None)) ==== expectedResult)
   }
 
   "Tensor" should "rank" in {
@@ -270,7 +270,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val arr: Tensor[Double, (TT, TD, 1 #: 2 #: SNil)] = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val other: Tensor[Double, (TT, TD, 2 #: 1 #: SNil)] = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
     val expectedResult: Tensor[Double, (TT, TD, 1 #: 1 #: SNil)] = Tensor(Array(8820.0), valueOf[TT], "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
-    val result = (arr.matmul[Double, 1, 2, 1, TT,TD, 1 #: 2 #: SNil, TT, TD,  2 #: 1 #: SNil](other)) ==== expectedResult
+    val result = (arr.matmul(other)) ==== expectedResult
     doAssert(result)
   }
 }

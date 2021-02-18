@@ -55,18 +55,18 @@ var w1:Tensor[Float, (TT, TD, TENKXONE)] = (Tensor(arrW1,"TensorTypeDenotation",
 //also lr multiplications
 def train = {
 //     val future = async {
-      val l1 =  (x.matmul[Float, 10000, 10000, 10000, TT,TD, TENKXTENK, TT, TD,  TENKXTENK](w0)).sigmoid() // one / ((-(x dot w0)).exp() + one)
-      val l2 = (l1.matmul[Float, 10000, 10000, 1000, TT,TD, TENKXTENK, TT, TD,  TENKXONE](w1)).sigmoid() // one / ((-(l1 dot w1)).exp() + one)
+      val l1 =  (x.matmul(w0)).sigmoid() // one / ((-(x dot w0)).exp() + one)
+      val l2 = (l1.matmul(w1)).sigmoid() // one / ((-(l1 dot w1)).exp() + one)
 
       val error = y - l2
 //      println("error: " + error.data.sum)
       val l2Delta = (error) * (l2 * (ones - l2))
-      val l1Delta =  (l2Delta.matmul[Float, 10000,1000,10000, TT,TD, TENKXONE, TT, TD,  1000 #: 10000 #: SNil](w1.transpose)) * (l1 * (moreOnes - l1))
+      val l1Delta =  (l2Delta.matmul(w1.transpose)) * (l1 * (moreOnes - l1))
 
       //Simulate in-place += op here 
       
-      w0 = w0 + (((x.transpose).matmul[Float, 10000,10000,10000, TT,TD, TENKXTENK, TT, TD,  TENKXTENK](l1Delta))) //*moreLrs)
-      w1 = w1 + (((l1.transpose).matmul[Float, 10000,10000,1000, TT,TD, TENKXTENK, TT, TD,  TENKXONE](l2Delta))) //*lrs)
+      w0 = w0 + (((x.transpose).matmul(l1Delta))) //*moreLrs)
+      w1 = w1 + (((l1.transpose).matmul(l2Delta))) //*lrs)
     
 }
 val before = System.nanoTime; for (j <- 0 until iters) {
@@ -76,3 +76,15 @@ val before = System.nanoTime; for (j <- 0 until iters) {
 println(after-before)
 
 }
+
+//For dex/ futhark comparison
+/*
+def pairwiseL1[Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, N <: Dimension, D <: Dimension](tens:Tensor[Float, (Tt, Td, N #: D #: SNil)]): Tensor[Float, (Tt, Td, N #: N #: SNil)] = {
+((tens.transpose - tens.unsqueeze(Array(2))).abs).reduceSum(axis=1)
+
+}
+
+//def pairwiseL1[SomeTT, SomeTD, N #: D #: SNil](tens:Tensor[Float, (SomeTT, SomeTD, N #: D #: SNil)]): Tensor[Float, (SomeTT, SomeTD, N #: N #: SNil)] =
+}
+*/
+
