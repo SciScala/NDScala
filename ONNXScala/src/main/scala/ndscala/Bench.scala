@@ -34,11 +34,10 @@ val moreLrs:Tensor[Float, (TT,TD, TENKXTENK)] = Tensor(Array.fill(100000000)(lr)
 val ones = Tensor(Array.fill(10000000)(1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 10000 #: 1000 #: SNil)
 val moreOnes = Tensor(Array.fill(100000000)(1.0f),"TensorTypeDenotation","TensorShapeDenotation" ##: TSNil, 10000 #: 10000 #: SNil)
 //For scaling
-
 val some10ks = Tensor(Array.fill(10000000)(10000.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 10000 #: 1000 #: SNil)
 val more10ks = Tensor(Array.fill(100000000)(10000.0f),"TensorTypeDenotation","TensorShapeDenotation" ##: TSNil, 10000 #: 10000 #: SNil)
 
-//TODO: check without type annotations when it's working
+
 val arrX:Array[Float] = (Array.fill(100000000)(thisRandom.nextFloat)).map(_.toFloat)
 val arrY:Array[Float] = (Array.fill(10000000)(thisRandom.nextFloat)).map(_.toFloat)
 val arrW0:Array[Float] = (Array.fill(100000000)(thisRandom.nextFloat)).map(_.toFloat)
@@ -46,7 +45,7 @@ val arrW1:Array[Float] = (Array.fill(10000000)(thisRandom.nextFloat)).map(_.toFl
 
 val y = Tensor(arrY,"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 10000 #: 1000 #: SNil)
 val x = Tensor(arrX,"TensorTypeDenotation","TensorShapeDenotation" ##: TSNil, 10000 #: 10000 #: SNil)
-//TODO: call recursively
+
 var w0:Tensor[Float, (TT, TD, TENKXTENK)] = (Tensor(arrW0,"TensorTypeDenotation","TensorShapeDenotation" ##: TSNil, 10000 #: 10000 #: SNil) - moreOnes) / more10ks
 var w1:Tensor[Float, (TT, TD, TENKXONE)] = (Tensor(arrW1,"TensorTypeDenotation","TensorShapeDenotation" ##: TSNil, 10000 #: 1000 #: SNil) - ones ) /some10ks
 
