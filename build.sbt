@@ -16,7 +16,7 @@ Global / concurrentRestrictions := Seq(
 )
 
 crossScalaVersions := Seq(dottyVersion, scala213Version)
-lazy val scalaTest = ("org.scalatest" %% "scalatest" % "3.2.4")
+lazy val scalaTest = ("org.scalatest" %% "scalatest" % "3.2.5")
 lazy val core = (project in file("core"))
   .settings(
     name := "ndscala-core",
@@ -65,6 +65,8 @@ lazy val tensorflow = (project in file("TensorFlow"))
     crossScalaVersions := Seq(dottyVersion, scala213Version)
   )
 */
+
+/*
 lazy val djl = (project in file("DJL"))
   .dependsOn(core)
   .settings(
@@ -88,4 +90,4 @@ lazy val mixTest = (project in file("mixtest"))
   .settings(
     name := "mixTest"
 )
-
+*/
