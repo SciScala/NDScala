@@ -44,47 +44,25 @@ lazy val onnxscala = (project in file("ONNXScala"))
     crossScalaVersions := Seq(dottyVersion, scala213Version)
   )
 
-def tensorflowOSClassifier: String = System.getProperty("os.name").toLowerCase match {
-    case mac if mac.contains("mac")  => "darwin"
-    case win if win.contains("win") => "windows"
-    case linux if linux.contains("linux") => "linux"
-    case osName => throw new RuntimeException(s"Unknown operating system $osName")
-}
 
-/*
-lazy val tensorflow = (project in file("TensorFlow"))
-  .dependsOn(core)
-  .settings(
-    name := "ndscala-tensorflow",
-    libraryDependencies += ("org.typelevel" %% "spire" % "0.17.0").withDottyCompat(dottyVersion),
-    //Only needed for Axes
-    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala" % "0.8.0",
-  //Local only  
-    libraryDependencies += ("org.platanios" %% "tensorflow" % "0.5.7" classifier tensorflowOSClassifier).withDottyCompat(dottyVersion),
-    libraryDependencies += scalaTest % Test,
-    crossScalaVersions := Seq(dottyVersion, scala213Version)
-  )
-*/
-
-/*
 lazy val djl = (project in file("DJL"))
   .dependsOn(core)
   .settings(
     name := "ndscala-djl",
     libraryDependencies += ("org.typelevel" %% "spire" % "0.17.0").withDottyCompat(dottyVersion),
-    libraryDependencies += "ai.djl" % "api" % "0.9.0",
-//    libraryDependencies += "ai.djl.mxnet" % "mxnet-engine" % "0.8.0",
+    libraryDependencies += "ai.djl" % "api" % "0.10.0",
+//    libraryDependencies += "ai.djl.mxnet" % "mxnet-engine" % "0.10.0",
 //    libraryDependencies += "ai.djl.mxnet" % "mxnet-native-auto" % "1.7.0-backport",
-    libraryDependencies += "ai.djl.pytorch" % "pytorch-engine" % "0.9.0",
-    libraryDependencies += "ai.djl.pytorch" % "pytorch-native-auto" % "1.7.0",
-//    libraryDependencies += "ai.djl.tensorflow" % "tensorflow-engine" % "0.8.0",
-//    libraryDependencies += "ai.djl.tensorflow" % "tensorflow-native-auto" % "2.3.1",
+    libraryDependencies += "ai.djl.pytorch" % "pytorch-engine" % "0.10.0",
+    libraryDependencies += "ai.djl.pytorch" % "pytorch-native-auto" % "1.7.1",
+//    libraryDependencies += "ai.djl.tensorflow" % "tensorflow-engine" % "0.10.0",
+//    libraryDependencies += "ai.djl.tensorflow" % "tensorflow-native-auto"% "2.3.1",
     //Only needed for Axes
     libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala" % "0.9.0",
     libraryDependencies += scalaTest % Test,
     crossScalaVersions := Seq(dottyVersion, scala213Version)
   )
-
+/*
 lazy val mixTest = (project in file("mixtest"))
   .dependsOn(onnxscala, djl)
   .settings(
