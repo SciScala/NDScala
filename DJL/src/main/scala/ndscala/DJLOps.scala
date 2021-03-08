@@ -33,7 +33,7 @@ object DJLOps {
   //No enforcement of DType
   opaque type DJLNDArray[DType <: AllSupported, Ax <: Axes] =NDArray
 
-  def wrap[DType <: AllSupported, Ax <: Axes](arr:NDArray): DJLNDArray[DType, Ax] = arr
+  implicit def wrap[DType <: AllSupported, Ax <: Axes](arr:NDArray): DJLNDArray[DType, Ax] = arr
   implicit def unwrap[DType <: AllSupported, Ax <: Axes](arr: DJLNDArray[DType, Ax]): NDArray = arr
   //  implicit def convert[DType: ClassTag](d: DType): DJLNDArray[DType] = DJLNDArray(d)
   
@@ -51,7 +51,7 @@ object DJLOps {
   //TODO: same thing, match on first element type
   //for now just use Axesi
  
-  implicit def fromDJLNDArray[DType <: AllSupported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](t: DJLNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = {
+  def fromDJLNDArray[DType <: AllSupported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](t: DJLNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = {
     val shape = Array(t.getShape.getShape.toArray: _*).map(x => x.toInt)
 
     t.getDataType.ordinal match{
@@ -98,18 +98,19 @@ def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt
   //def reshape[DType <: Supported : ClassTag: Numeric](arr: DJLNDArray[DType], newShape: Array[Int]): DJLNDArray[DType]
     //Unary ops
 //  def reshape[DType <: Supported : ClassTag: Numeric](arr: DJLNDArray[DType], newShape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType] 
-  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def reShape[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](newShape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1], sizeSeq: NumElements[S] =:= NumElements[S1]): DJLNDArray[DType, (Tt1,Td1,S1)] = wrap(arr.reshape(newShape.map(_.toLong): _*))
+extension [DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def reshape[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1], sizeSeq: NumElements[S] =:= NumElements[S1]): DJLNDArray[DType, (Tt1,Td1,S1)] = wrap((arr: NDArray).reshape(shapeOf[S1].toSeq.toArray.map(x => x.toLong): _*)) //arr.reshape(1) //shapeOf[S1].toSeq.toArray)
 
-    extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def transpose(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[org.emergentorder.compiletime.TensorShapeDenotation.Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): DJLNDArray[DType, (Tt,org.emergentorder.compiletime.TensorShapeDenotation.Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])] = wrap((arr:NDArray).transpose())
+    extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def transpose(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[org.emergentorder.compiletime.TensorShapeDenotation.Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): DJLNDArray[DType, (Tt,org.emergentorder.compiletime.TensorShapeDenotation.Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])] = wrap((arr).transpose())
 
-  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def transpose(axes: Array[Int], dummy: Option[Boolean])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[org.emergentorder.compiletime.TensorShapeDenotation.Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): DJLNDArray[DType, (Tt,org.emergentorder.compiletime.TensorShapeDenotation.Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])] = wrap(arr.transpose(axes: _*))
+    //Forced to take only the first here
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def transpose(axes: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[org.emergentorder.compiletime.TensorShapeDenotation.Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): DJLNDArray[DType, (Tt,org.emergentorder.compiletime.TensorShapeDenotation.Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])] = wrap((arr:NDArray).transpose(axes(0)))
 
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def round()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = wrap(arr.round)
 
   //TODO: broaden slice, extra sugar for slice, range, squeeze, ...
-  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def slice[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](start: Int, end: Int, dummy: Option[Boolean])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1]): DJLNDArray[DType, (Tt1,Td1,S1)] = wrap(arr.get((new NDIndex()).addSliceDim(start, end)))
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def slice[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](start: Int, end: Int)(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1]): DJLNDArray[DType, (Tt1,Td1,S1)] = wrap(arr.get((new NDIndex()).addSliceDim(start, end)))
 
-  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def squeeze[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](index: Array[Int], dummy: Option[Boolean])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1]): DJLNDArray[DType, (Tt1,Td1,S1)] = wrap(unwrap(arr).squeeze(index.toArray))
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def squeeze[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape, Axes <: Indices](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1], i: IndicesOf[Axes]): DJLNDArray[DType, (Tt1,Td1,S1)] = wrap(unwrap(arr).squeeze(indicesOf[Axes].indices.toArray))
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def rank: Int = arr.getShape.getShape.size
 
   extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def unary_- (using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = wrap(arr.neg)
@@ -138,6 +139,7 @@ def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def sigmoid()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = wrap(ai.djl.nn.Activation.sigmoid(arr))
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def relu()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = wrap(ai.djl.nn.Activation.relu(arr))
   
+  extension[DType <: NumericSupported : ClassTag : Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def reduceSum[Tt1 <: TensorTypeDenotation, Axes <: Indices, KeepDims <: (Boolean&Singleton)](using tt: ValueOf[Tt1], td: TensorShapeDenotationOf[KeepOrReduceDimDenotations[Td,Axes,KeepDims]], s: ShapeOf[KeepOrReduceDims[S,Axes,KeepDims]], i: IndicesOf[Axes], k: ValueOf[KeepDims]): DJLNDArray[DType, Tuple3[Tt1,KeepOrReduceDimDenotations[Td,Axes,KeepDims],KeepOrReduceDims[S,Axes,KeepDims]]] = ???
 
   //Binary DJLNDArray ops
  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def +(other: DJLNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = wrap(arr add other)
@@ -160,6 +162,6 @@ def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt
   extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def min(d: DJLNDArray[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = wrap(arr minimum d)
 
   //DJL-mxnet only actually supports Float here (gpu only?)
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Dim0 <: Dimension, Dim1 <: Dimension, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Dim0 #: Dim1 #:SNil] (arr: DJLNDArray[DType, (Tt,Td,S)]) def matmul[Dim2 <: Dimension, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Dim1 #: Dim2 #: SNil](other: DJLNDArray[DType, (Tt1,Td1,S1)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td],vd:ValueOf[scala.compiletime.S[Dim0]], vd2: ValueOf[scala.compiletime.S[Dim2]], s2: ShapeOf[Dim0 #: Dim2 #: SNil]): DJLNDArray[DType, (Tt,Td,Dim0 #: Dim2 #: SNil)] = wrap(arr matMul other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Dim0 <: Dimension, Dim1 <: Dimension, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Dim0 #: Dim1 #:SNil] (arr: DJLNDArray[DType, (Tt,Td,S)]) def matmul[Dim2 <: Dimension, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Dim1 #: Dim2 #: SNil](other: DJLNDArray[DType, (Tt1,Td1,S1)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td],vd:ValueOf[scala.compiletime.S[Dim0]], vd1:ValueOf[scala.compiletime.S[Dim1]], vd2: ValueOf[scala.compiletime.S[Dim2]], s2: ShapeOf[Dim0 #: Dim2 #: SNil]): DJLNDArray[DType, (Tt,Td,Dim0 #: Dim2 #: SNil)] = wrap(arr matMul other)
   
 }
