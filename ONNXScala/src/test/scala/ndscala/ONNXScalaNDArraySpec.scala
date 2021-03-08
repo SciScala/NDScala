@@ -43,6 +43,7 @@ class ONNXScalaTensorSpec extends AnyFlatSpec {
 type TT = "TensorTypeDenotation"
 type TD = "TensorShapeDenotation" ##: TSNil
 
+//TODO: more negative tests
 
 // TODO: Don't do this, it silences match errors
   def doAssert(t: Tensor[Boolean, Axes]) = {
@@ -54,9 +55,21 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert(((arr + arr) ====Tensor(Array(84, 168),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)))
   }
 
+  "Tensor" should "fail to compile add with a different shape" in {
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)  
+    val arrB = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil) 
+    assertTypeError("arr + arrB")
+  }
+
   "Tensor" should "subtract" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     doAssert((arr - arr) ==== Tensor(Array(0, 0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
+  }
+
+  "Tensor" should "fail to compile subtract with a different shape" in {
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val arrB = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
+    assertTypeError("arr - arrB")
   }
 
   "Tensor" should "multiply" in {
@@ -64,14 +77,32 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr * arr) ==== Tensor(Array(1764, 7056),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
+  "Tensor" should "fail to compile multiply with a different shape" in {
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val arrB = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
+    assertTypeError("arr * arrB")
+  }
+
   "Tensor" should "divide" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     doAssert((arr / arr) ==== Tensor(Array(1, 1),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
+  "Tensor" should "fail to compile divide with a different shape" in {
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val arrB = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
+    assertTypeError("arr / arrB")
+  }
+
   "Tensor" should "equal" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     doAssert(arr ==== Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)) 
+  }
+
+  "Tensor" should "fail to compile equal with a different shape" in {
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val arrB = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
+    assertTypeError("arr ==== arrB")
   }
 
   "Tensor" should "not equal" in {
@@ -80,10 +111,30 @@ type TD = "TensorShapeDenotation" ##: TSNil
     assert(result.data(0) == false)
   }
  
+  "Tensor" should "fail to compile not equal with a different shape" in {
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val arrB = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
+    assertTypeError("arr !=== arrB")
+  }
+
   "Tensor" should "reshape" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
-    doAssert((arr.reShape[TT, TD, 2 #: 1 #: SNil](Array(2,1))) ==== expectedResult)
+    doAssert((arr.reshape[TT, TD, 2 #: 1 #: SNil]) ==== expectedResult)
+  }
+
+  "Tensor" should "fail to compile reshape where the new shape has wrong size" in {
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    assertTypeError("arr.reshape[TT, TD, 3 #: 1 #: SNil]()")
+  }
+
+  
+  "Tensor" should "reduceSum" in {
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(126),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: SNil)
+    //val out = arr.reduceSum[TT, 1 ::: INil, true]()
+//    println(out)
+    //doAssert((arr.reduceSum[TT, 1 ::: INil, true]) ==== expectedResult)
   }
 
   "Tensor" should "transpose" in {
@@ -93,7 +144,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
 
   "Tensor" should "transpose with axes" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil)
-    doAssert((arr.transpose(Array(1,0), None)) ==== Tensor(Array(1, 3, 2, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil))
+    doAssert((arr.transpose(Array(1,0))) ==== Tensor(Array(1, 3, 2, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil))
   }
 
   "Tensor" should "round" in {
@@ -104,15 +155,30 @@ type TD = "TensorShapeDenotation" ##: TSNil
   "Tensor" should "slice" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
     val expectedResult = Tensor(Array(2, 3),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
-    doAssert((arr.slice[TT, TD, 2 #: SNil](1,3, None)) ==== expectedResult)
+    doAssert((arr.slice[TT, TD, 2 #: SNil](1,3)) ==== expectedResult)
   }
 
+  /*
+  "Tensor" should "fail to compile slice when indices out of range" in {
+    val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
+    arr.slice[TT, TD, 2 #: SNil](1,8, None)
+    assertTypeError("arr.slice[TT, TD, 2 #: SNil](1,8, None)")
+//    doAssert((arr.slice[TT, TD, 2 #: SNil](1,3, None)) ==== expectedResult)
+  }
+*/
   "Tensor" should "squeeze" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
-    doAssert((arr.squeeze[TT, TD, 2 #: SNil](Array(0), None)) ==== expectedResult)
+    doAssert((arr.squeeze[TT, TD, 2 #: SNil, 0 ::: INil]) ==== expectedResult)
   }
 
+  /*
+  "Tensor" should "fail to compile squeeze when indices out of range" in {
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    arr.squeeze[TT, TD, 2 #: SNil, 8 ::: INil]
+    //assertTypeError("") 
+  }
+*/
   "Tensor" should "rank" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     arr.rank == 2
@@ -260,10 +326,22 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr max other) ==== Tensor(Array(50.0f, 84.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
+  "Tensor" should "fail to compile max if shapes don't match" in {
+    val arr = Tensor(Array(42.0f, 84.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val other = Tensor(Array(50.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: SNil)
+    assertTypeError("arr max other")
+  }
+
   "Tensor" should "min" in {
     val arr = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val other = Tensor(Array(50.0, 80.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     doAssert((arr min other) ==== Tensor(Array(42.0, 80.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
+  }
+
+  "Tensor" should "fail to compile min if shapes don't match" in {
+    val arr = Tensor(Array(42.0f, 84.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val other = Tensor(Array(50.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: SNil)
+    assertTypeError("arr min other")
   }
 
   "Tensor" should "matmul" in {
@@ -273,4 +351,10 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val result = (arr.matmul(other)) ==== expectedResult
     doAssert(result)
   }
+
+  "Tensor" should "not matmul if dimensions don't match" in {
+    val arr = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    assertTypeError("arr.matmul(other)")
+  }
+
 }
