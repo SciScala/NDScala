@@ -2,18 +2,22 @@ Training a (shape-safe) neural network in 11 lines:
 
 In NDScala:
 ```scala
-//Some setup - to be hidden
-val thisRandom = new Random(42)
-val ones = Tensor(Array.fill(10000000)(1.0f),"TensorLabel", "AxisLabel" ##: "AxisLabel" ##: TSNil, 10000 #: 1000 #: SNil)
-val moreOnes = Tensor(Array.fill(100000000)(1.0f),"TensorLabel","AxisLabel" ##: "AxisLabel" ##: TSNil, 10000 #: 10000 #: SNil)
-val arrW0:Array[Float] = (Array.fill(100000000)(thisRandom.nextFloat)).map(_.toFloat)
-val arrW1:Array[Float] = (Array.fill(10000000)(thisRandom.nextFloat)).map(_.toFloat)
+//Declaring types and their corresponding values //TODO - derive values from the types here
+type Mat10kX10k = 10000 #: 10000 #:SNil
+type AxisLabels = "AxisLabel" ##: "AxisLabel" ##: TSNil
+val mat10kX10k = 10000 #: 10000 #:SNil
+val axisLabels = "AxisLabel" ##: "AxisLabel" ##: TSNil
 
-def train(x: Tensor[Float, ("TensorLabel", "AxisLabel" ##: "AxisLabel" ##: TSNil, 10000 #: 10000 #:SNil)],
-          y: Tensor[Float, ("TensorLabel", "AxisLabel" ##: "AxisLabel" ##:  TSNil, 10000 #: 1000 #:SNil)],
+//Some setup
+val ones = Tensor(Array.fill(100000000)(1.0f),"TensorLabel",axisLabels, mat10kX10k)
+def arrW0:Array[Float] = ??? //Your initialized weights, layer 0, size 100m 
+def arrW1:Array[Float] = ??? //Your initialized weights, layer 1, size 100m
+
+def train(x: Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)],
+          y: Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)],
           iter: Int) =
-    var w0 = (Tensor(arrW0,"TensorLabel","AxisLabel" ##: "AxisLabel" ##: TSNil, 10000 #: 10000 #: SNil) - moreOnes)
-    var w1 = (Tensor(arrW1,"TensorLabel","AxisLabel" ##: "AxisLabel" ##: TSNil, 10000 #: 1000 #: SNil) - ones )
+    var w0 = (Tensor(arrW0,"TensorLabel", axisLabels, mat10kX10k) - ones)
+    var w1 = (Tensor(arrW1,"TensorLabel", axisLabels, mat10kX10k) - ones )
     for j <- 0 until iter
     do
         val l1 =  (x.matmul(w0)).sigmoid()
