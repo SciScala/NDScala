@@ -2,11 +2,11 @@ Training a (shape-safe) neural network in 11 lines:
 
 In NDScala:
 ```scala
-//Declaring types and their corresponding values //TODO - derive values from the types here
+//Declaring types and their corresponding values
 type Mat10kX10k = 10000 #: 10000 #:SNil
 type AxisLabels = "AxisLabel" ##: "AxisLabel" ##: TSNil
-val mat10kX10k = 10000 #: 10000 #:SNil
-val axisLabels = "AxisLabel" ##: "AxisLabel" ##: TSNil
+val mat10kX10k = shapeOf[Mat10kX10k]
+val axisLabels = tensorShapeDenotationOf[AxisLabels]
 
 //Some setup
 val ones = Tensor(Array.fill(100000000)(1.0f),"TensorLabel",axisLabels, mat10kX10k)
