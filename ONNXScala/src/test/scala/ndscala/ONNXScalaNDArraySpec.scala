@@ -128,13 +128,16 @@ type TD = "TensorShapeDenotation" ##: TSNil
     assertTypeError("arr.reshape[TT, TD, 3 #: 1 #: SNil]()")
   }
 
-  
-  "Tensor" should "reduceSum" in {
-    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
-    val expectedResult = Tensor(Array(126),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: SNil)
-    //val out = arr.reduceSum[TT, 1 ::: INil, true]()
-//    println(out)
-    //doAssert((arr.reduceSum[TT, 1 ::: INil, true]) ==== expectedResult)
+  "Tensor" should "reduceSum wih keepdims on" in {
+    val arr = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(126f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    doAssert((arr.reduceSum[TT, 1 ::: INil, true]) ==== expectedResult)
+  }
+
+  "Tensor" should "reduceSum with keepdims off" in {
+    val arr = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(126f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: SNil)
+    doAssert((arr.reduceSum[TT, 1 ::: INil, false]) ==== expectedResult)
   }
 
   "Tensor" should "transpose" in {
@@ -155,9 +158,17 @@ type TD = "TensorShapeDenotation" ##: TSNil
   "Tensor" should "slice" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
     val expectedResult = Tensor(Array(2, 3),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
-    doAssert((arr.slice[TT, TD, 2 #: SNil](1,3)) ==== expectedResult)
+
+    doAssert((arr.slice[TT, TD, 2 #: SNil](Tensor(Array(1),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: SNil),Tensor(Array(3),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: SNil))) ==== expectedResult)
   }
 
+    "Tensor" should "slice 2d" in {
+    val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil )
+    val expectedResult = Tensor(Array(1,2),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
+    doAssert((arr.slice[TT, TD, 2 #: 1 #: SNil](Tensor(Array(0,0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil),Tensor(Array(2,1),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil))) ==== expectedResult)
+  }
+
+  //Need to change SliceV11 definition
   /*
   "Tensor" should "fail to compile slice when indices out of range" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
@@ -167,15 +178,16 @@ type TD = "TensorShapeDenotation" ##: TSNil
   }
 */
   "Tensor" should "squeeze" in {
-    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
-    doAssert((arr.squeeze[TT, TD, 2 #: SNil, 0 ::: INil]) ==== expectedResult)
+    doAssert((arr.squeeze[TT, 0 ::: INil]) ==== expectedResult)
   }
 
+ 
   /*
   "Tensor" should "fail to compile squeeze when indices out of range" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
-    arr.squeeze[TT, TD, 2 #: SNil, 8 ::: INil]
+    arr.squeeze[TT, 8 ::: INil]
     //assertTypeError("") 
   }
 */
@@ -222,12 +234,14 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((exp) ==== Tensor(Array(0.3678794411714423, 1.0, 2.718281828459045),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
+ 
   /*
   "Tensor" should "concat" in {
-    val arr: Tensor[Double] = (Array(1.0, 4.0, 9.0), Mat(1,3))
-    val arrB: Tensor[Double] = (Array(2.0, 3.0, 4.0, 5.0, 6.0, 7.0), Mat(2,3))
-    doAssert((Seq(arr, arrB) concat(0)) ==== (Array(1.0, 4.0, 9.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0), Mat(3,3)))
+    val arr = Tensor(Array(1.0, 4.0, 9.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    val arrB = Tensor(Array(2.0, 3.0, 4.0, 5.0, 6.0, 7.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 3 #: SNil)
+    doAssert((Seq(arr, arrB) concat(0)) ==== Tensor(Array(1.0, 4.0, 9.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 3 #: 3 #: SNil))
   }
+
 
   "Tensor" should "mean" in {
     val arr: Tensor[Float] = (Array(1.0f, 4.0f, 9.0f), Mat(1,3))
