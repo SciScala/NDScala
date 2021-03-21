@@ -159,24 +159,27 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
     val expectedResult = Tensor(Array(2, 3),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
 
-    doAssert((arr.slice[TT, TD, 2 #: SNil](Tensor(Array(1),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: SNil),Tensor(Array(3),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: SNil))) ==== expectedResult)
+    doAssert((arr.slice[TT, TD, 2 #: SNil, 1 ::: INil, 3 ::: INil]) ==== expectedResult)
   }
 
     "Tensor" should "slice 2d" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil )
     val expectedResult = Tensor(Array(1,2),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
-    doAssert((arr.slice[TT, TD, 2 #: 1 #: SNil](Tensor(Array(0,0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil),Tensor(Array(2,1),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil))) ==== expectedResult)
+    doAssert((arr.slice[TT, TD, 2 #: 1 #: SNil, 0 ::: 0 ::: INil, 2 ::: 1 ::: INil]) ==== expectedResult)
   }
 
-  //Need to change SliceV11 definition
+  //Will work when Slice is fixed
   /*
   "Tensor" should "fail to compile slice when indices out of range" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
-    arr.slice[TT, TD, 2 #: SNil](1,8, None)
-    assertTypeError("arr.slice[TT, TD, 2 #: SNil](1,8, None)")
-//    doAssert((arr.slice[TT, TD, 2 #: SNil](1,3, None)) ==== expectedResult)
+    assertTypeError("arr.slice[TT, TD, 2 #: SNil, 0 ::: INil, 11 ::: INil]")
   }
-*/
+
+  "Tensor" should "fail to compile slice when indices negative" in {
+    val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
+    assertTypeError("arr.slice[TT, TD, 2 #: SNil, 0 ::: INil, 11 ::: INil]")
+  }
+  */
   "Tensor" should "squeeze" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
