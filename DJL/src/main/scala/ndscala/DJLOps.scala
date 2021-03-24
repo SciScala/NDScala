@@ -118,6 +118,7 @@ extension [DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotati
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def ceil()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = wrap(arr.ceil)
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: DJLNDArray[DType, (Tt,Td,S)]) def floor()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = wrap(arr.floor)
 
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](arr: Tuple2[DJLNDArray[DType, (Tt, Td, S)],DJLNDArray[DType, (Tt, Td, S)]]) def concat[Axis <: Index ::: INil](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[DoubleGivenAxisSize[S,Axis]], i: IndicesOf[Axis]): DJLNDArray[DType, (Tt,Td,DoubleGivenAxisSize[S,Axis])] = ???
 
  //TODO: reduceMean
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Seq[DJLNDArray[DType, (Tt,Td,S)]]) def mean()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): DJLNDArray[DType, (Tt,Td,S)] = ???

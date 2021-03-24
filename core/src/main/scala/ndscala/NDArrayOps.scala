@@ -10,6 +10,7 @@ import io.kjaer.compiletime._
 import io.kjaer.compiletime.Shape.NumElements
 import org.emergentorder.compiletime._
 import org.emergentorder.compiletime.TensorShapeDenotation.Reverse
+import org.emergentorder.compiletime.TensorShapeDenotation.Concat
 
 //TODO: idea for named tensor / axis types : use string singleton types
 //TODO: in simple-df : evaluate crossbow
@@ -70,7 +71,7 @@ trait NDArrayOps[SomeNDArray[_ <: AllSupported, _ <: Axes]] {
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def ceil()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def floor()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
 
-//  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](arr: Seq[SomeNDArray[DType, (TensorTypeDenotation,TensorShapeDenotation,Shape)]]) def concat (axis: Int)(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](arr: Tuple2[SomeNDArray[DType, (Tt, Td, S)],SomeNDArray[DType, (Tt, Td, S)]]) def concat[Axis <: Index ::: INil](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[DoubleGivenAxisSize[S,Axis]], i: IndicesOf[Axis]): SomeNDArray[DType, (Tt,Td,DoubleGivenAxisSize[S,Axis])]
 
 
   //Reduction ops:
