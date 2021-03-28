@@ -25,7 +25,7 @@ lazy val core = (project in file("core"))
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     libraryDependencies += ("org.typelevel" %% "simulacrum" % "1.0.1").withDottyCompat(dottyVersion), //TODO: Move to simulacrum-scalafix
     libraryDependencies += ("org.typelevel" %% "spire" % "0.17.0").withDottyCompat(dottyVersion),
-    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala" % "0.11.0",
+    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala" % "0.12.0",
   //Local only  
 //  libraryDependencies += "io.kjaer" % "tf-dotty-compiletime" % "0.0.0+134-f1f8d0ba+20201020-1123-SNAPSHOT",
 //    libraryDependencies += "io.kjaer" % "tf-dotty-compiletime_0.27" % "0.0.0+134-f1f8d0ba+20201020-1123-SNAPSHOT",
@@ -37,7 +37,7 @@ lazy val onnxscala = (project in file("ONNXScala"))
   .settings(
     name := "ndscala-onnx-scala",
     libraryDependencies += ("org.typelevel" %% "spire" % "0.17.0").withDottyCompat(dottyVersion),
-    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala-backends" % "0.11.0",
+    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala-backends" % "0.12.0",
 //    libraryDependencies += "org.bytedeco" % "dnnl-platform" % "1.6.4-1.5.5-SNAPSHOT",
 //    libraryDependencies += "com.github.rssh" %% "dotty-cps-async" % "0.2.1-RC1",
     libraryDependencies += scalaTest % Test,
@@ -62,7 +62,7 @@ lazy val djl = (project in file("DJL"))
 //    libraryDependencies += "ai.djl.tflite" % "tflite-engine" % "0.10.0",
 //    libraryDependencies += "ai.djl.tflite" % "tflite-native-auto" % "2.4.1",
     //Only needed for Axes
-    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala" % "0.11.0",
+    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala" % "0.12.0",
     libraryDependencies += scalaTest % Test,
     crossScalaVersions := Seq(dottyVersion, scala213Version)
   )

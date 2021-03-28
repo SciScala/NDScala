@@ -159,13 +159,13 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
     val expectedResult = Tensor(Array(2, 3),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
 
-    doAssert((arr.slice[TT, TD, 2 #: SNil, 1 ::: INil, 3 ::: INil]) ==== expectedResult)
+    doAssert((arr.slice[TT, 1 ::: INil, 3 ::: INil]) ==== expectedResult)
   }
 
     "Tensor" should "slice 2d" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil )
-    val expectedResult = Tensor(Array(1,2),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
-    doAssert((arr.slice[TT, TD, 2 #: 1 #: SNil, 0 ::: 0 ::: INil, 2 ::: 1 ::: INil]) ==== expectedResult)
+    val expectedResult = Tensor(Array(1,2),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
+    doAssert((arr.slice[TT, 0 ::: 0 ::: INil, 2 ::: 1 ::: INil]) ==== expectedResult)
   }
 
   //Will work when Slice is fixed
