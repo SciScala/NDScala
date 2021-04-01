@@ -1,7 +1,7 @@
 package org.sciscala.ndscala 
 
 import scala.util.Random
-//import scala.collection.immutable.Array
+import scala.collection.immutable.ArraySeq
 import scala.reflect.ClassTag
 import spire.random.Dist
 import spire.math._
@@ -19,13 +19,14 @@ import org.emergentorder.compiletime.TensorShapeDenotation.Concat
 //import org.emergentorder.=!=
 
 object ONNXScalaOps {
-
   //implicit def convert[DType <: Supported : ClassTag](d: DType)(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (?, ?, 1 #: SNil)] = Tensor(Array(d), (?,?,1 #: SNil))
 //  implicit def toTensor[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](t: (Array[DType], (Tt,Td,S)))(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = Tensor(t.data.toIAy,)
 //  implicit def fromTensor[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](t: Tensor[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): (Array[DType], (Tt,Td,S)) = {
 //    (t.data, t._2)
 //   
 //  }
+  val onnx = new ORTOperatorBackendAll()
+//  def fuseOps = onnx.fuseOps
 }
 
 //TODO: Stricter type bounds because ORT doesn't implement them all
@@ -107,7 +108,7 @@ given NDArrayOps[Tensor] with {
   import org.sciscala.ndscala.ONNXScalaOps.convertFloat
   import org.sciscala.ndscala.ONNXScalaOps.convertDouble
 */
-  val onnx = new ORTOperatorBackendAll()
+  val onnx = ONNXScalaOps.onnx
 //  val seed = Array(1l,2l,3l,4l,5l)
   val rng = spire.random.rng.Cmwc5()
 
@@ -115,15 +116,15 @@ given NDArrayOps[Tensor] with {
   def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = Tensor(Array.fill(s.value.toSeq.foldLeft(1)(_*_))(implicitly[Numeric[DType]].zero),tt.value,td.value, s.value)
   def ones[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](shape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = Tensor(Array.fill(shape.foldLeft(1)(_*_))(implicitly[Numeric[DType]].one), tt.value, td.value,s.value)
   def full[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](shape: Array[Int], value: DType)(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = Tensor(Array.fill(shape.foldLeft(1)(_*_))(value), tt.value, td.value, s.value)
- 
+
   //TODO: fix rand
 //  def rand[DType <: Supported : ClassTag: Numeric](shape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType] = ???
 
 
   //Unary ops
 //  def reshape[DType <: Supported : ClassTag: Numeric](arr: Tensor[DType], newShape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType] 
-extension [DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def reshape[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1], sizeSeq: NumElements[S] =:= NumElements[S1]): Tensor[DType, (Tt1,Td1,S1)] = onnx.ReshapeV5("reshape", arr,
-    Tensor(shapeOf[S1].toSeq.toArray.map(x => x.toLong), tt1.value, td1.value, Shape.fromSeq(Array(shapeOf[S1].toSeq.size)))) //wrong denotations
+  extension [DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def reshape[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1], sizeSeq: NumElements[S] =:= NumElements[S1]): Tensor[DType, (Tt1,Td1,S1)] = onnx.ReshapeV5("reshape", arr,
+    Tensor(shapeOf[S1].toSeq.toArray.map(x => x.toLong), tt1.value, td1.value, Shape.fromSeq(ArraySeq.unsafeWrapArray(Array(shapeOf[S1].toSeq.size))))) //wrong denotations
 
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def transpose(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): Tensor[DType, (Tt,Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])] = onnx.TransposeV1("transpose", None, arr)
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def transpose(axes: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): Tensor[DType, (Tt,Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])] = onnx.TransposeV1("transpose", Some(axes.toArray), arr)
@@ -188,5 +189,5 @@ extension [DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotati
  
   extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def max(d: Tensor[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = onnx.MaxV8("max", Seq(arr, d))
   extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def min(d: Tensor[DType, (Tt,Td,S)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = onnx.MinV8("min", Seq(arr, d))
-  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Dim0 <: Dimension, Dim1 <: Dimension, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Dim0 #: Dim1 #:SNil] (arr: Tensor[DType, (Tt,Td,S)]) def matmul[Dim2 <: Dimension, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Dim1 #: Dim2 #: SNil](other: Tensor[DType, (Tt1,Td1,S1)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td],vd:ValueOf[scala.compiletime.S[Dim0]], vd1:ValueOf[scala.compiletime.S[Dim1]], vd2: ValueOf[scala.compiletime.S[Dim2]], s2: ShapeOf[Dim0 #: Dim2 #: SNil]): Tensor[DType, (Tt,Td,Dim0 #: Dim2 #: SNil)] = onnx.MatMulV9[DType, Dim0, Dim1, Dim2, Tt,Td,S,Tt1,Td1,S1]("matmul", arr, other)
+  extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Dim0 <: Dimension, Dim1 <: Dimension, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Dim0 #: Dim1 #:SNil] (arr: Tensor[DType, (Tt,Td,S)]) def matmul[Dim2 <: Dimension, Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Dim1 #: Dim2 #: SNil](other: Tensor[DType, (Tt1,Td1,S1)])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td],vd:ValueOf[scala.compiletime.ops.int.S[Dim0]], vd1:ValueOf[scala.compiletime.ops.int.S[Dim1]], vd2: ValueOf[scala.compiletime.ops.int.S[Dim2]], s2: ShapeOf[Dim0 #: Dim2 #: SNil]): Tensor[DType, (Tt,Td,Dim0 #: Dim2 #: SNil)] = onnx.MatMulV9[DType, Dim0, Dim1, Dim2, Tt,Td,S,Tt1,Td1,S1]("matmul", arr, other)
 }

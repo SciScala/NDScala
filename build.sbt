@@ -1,8 +1,8 @@
 import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 //val dottyVersion = dottyLatestNightlyBuild.get
-val dottyVersion = "3.0.0-RC1"
-val scala213Version = "2.13.4"
+val dottyVersion = "3.0.0-RC2"
+val scala213Version = "2.13.5"
 
 resolvers in Global += "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
 
@@ -16,7 +16,7 @@ Global / concurrentRestrictions := Seq(
 )
 
 crossScalaVersions := Seq(dottyVersion, scala213Version)
-lazy val scalaTest = ("org.scalatest" %% "scalatest" % "3.2.5")
+lazy val scalaTest = ("org.scalatest" %% "scalatest" % "3.2.7")
 lazy val core = (project in file("core"))
   .settings(
     name := "ndscala-core",
@@ -29,7 +29,7 @@ lazy val core = (project in file("core"))
   //Local only  
 //  libraryDependencies += "io.kjaer" % "tf-dotty-compiletime" % "0.0.0+134-f1f8d0ba+20201020-1123-SNAPSHOT",
 //    libraryDependencies += "io.kjaer" % "tf-dotty-compiletime_0.27" % "0.0.0+134-f1f8d0ba+20201020-1123-SNAPSHOT",
-    libraryDependencies += scalaTest % Test,
+//    libraryDependencies += scalaTest % Test,
     crossScalaVersions := Seq(dottyVersion, scala213Version)
    )
 lazy val onnxscala = (project in file("ONNXScala"))

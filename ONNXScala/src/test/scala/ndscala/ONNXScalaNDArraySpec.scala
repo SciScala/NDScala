@@ -168,6 +168,8 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr.slice[TT, 0 ::: 0 ::: INil, 2 ::: 1 ::: INil]) ==== expectedResult)
   }
 
+  //FIXME: Slice fails at runtime if indices are wrong sizes
+  //TODO
   //Will work when Slice is fixed
   /*
   "Tensor" should "fail to compile slice when indices out of range" in {
