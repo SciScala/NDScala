@@ -71,7 +71,7 @@ trait NDArrayOps[SomeNDArray[_ <: AllSupported, _ <: Axes]] {
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def ceil()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def floor()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
 
-  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](arr: Tuple2[SomeNDArray[DType, (Tt, Td, S)],SomeNDArray[DType, (Tt, Td, S)]]) def concat[Axis <: Index ::: INil](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[DoubleGivenAxisSize[S,Axis]], i: IndicesOf[Axis]): SomeNDArray[DType, (Tt,Td,DoubleGivenAxisSize[S,Axis])]
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, SSuffix <: Shape, S <: Dimension #: SSuffix, S1 <: Dimension #: SSuffix](arr: Tuple2[SomeNDArray[DType, (Tt, Td, S)],SomeNDArray[DType, (Tt, Td, S1)]]) def concat[Axis <: Index ::: INil](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[AddGivenAxisSize[S,S1,Axis]], i: IndicesOf[Axis]): SomeNDArray[DType, (Tt,Td,AddGivenAxisSize[S,S1,Axis])]
 
 
   //Reduction ops:
