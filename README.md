@@ -1,32 +1,32 @@
-Training a (shape-safe) neural network in 11 lines:
+Training a (shape-safe) neural network in 10 lines:
 
 In NDScala:
 ```scala
+//After some setup
 //Declaring types and their corresponding values
 type Mat10kX10k = 10000 #: 10000 #:SNil
 type AxisLabels = "AxisLabel" ##: "AxisLabel" ##: TSNil
 val mat10kX10k = shapeOf[Mat10kX10k]
 val axisLabels = tensorShapeDenotationOf[AxisLabels]
 
-//Some setup
 val ones = Tensor(Array.fill(100000000)(1.0f),"TensorLabel",axisLabels, mat10kX10k)
-def arrW0:Array[Float] = ??? //Your initialized weights, layer 0, size 100m 
-def arrW1:Array[Float] = ??? //Your initialized weights, layer 1, size 100m
 
 def train(x: Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)],
           y: Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)],
-          iter: Int) =
-    var w0 = (Tensor(arrW0,"TensorLabel", axisLabels, mat10kX10k) - ones)
-    var w1 = (Tensor(arrW1,"TensorLabel", axisLabels, mat10kX10k) - ones )
-    for j <- 0 until iter
-    do
+          w0: Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)],
+          w1: Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)],
+          iter: Int): Tuple2[Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)],
+                             Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)]] =
+    if iter == 0 then (w0, w1)    
+    else
         val l1 =  (x.matmul(w0)).sigmoid()
         val l2 = (l1.matmul(w1)).sigmoid()
         val error = y - l2
         val l2Delta = (error) * (l2 * (ones - l2))
         val l1Delta =  (l2Delta.matmul(w1.transpose))
-        val w0New = w0 + (((x.transpose).matmul(l1Delta))) //Simulating in-place op
-        val w1New = w1 + (((l1.transpose).matmul(l2Delta))) //Simulating in-place op
+        val w0New = w0 + (((x.transpose).matmul(l1Delta)))
+        val w1New = w1 + (((l1.transpose).matmul(l2Delta)))
+        train(x,y,w0New,w1New,iter-1)
 ```
 
 And for reference, in NumPy, in 10 lines:
