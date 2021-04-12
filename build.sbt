@@ -43,33 +43,3 @@ lazy val onnxscala = (project in file("ONNXScala"))
     libraryDependencies += scalaTest % Test,
     crossScalaVersions := Seq(dottyVersion, scala213Version)
   )
-
-
-lazy val djl = (project in file("DJL"))
-  .dependsOn(core)
-  .settings(
-    name := "ndscala-djl",
-    libraryDependencies += ("org.typelevel" %% "spire" % "0.17.0").withDottyCompat(dottyVersion),
-    libraryDependencies += "ai.djl" % "api" % "0.10.0",
-//    libraryDependencies += "ai.djl.mxnet" % "mxnet-engine" % "0.10.0",
-//    libraryDependencies += "ai.djl.mxnet" % "mxnet-native-auto" % "1.7.0-backport",
-    libraryDependencies += "ai.djl.pytorch" % "pytorch-engine" % "0.10.0",
-    libraryDependencies += "ai.djl.pytorch" % "pytorch-native-auto" % "1.7.1",
-//    libraryDependencies += "ai.djl.tensorflow" % "tensorflow-engine" % "0.10.0",
-//    libraryDependencies += "ai.djl.tensorflow" % "tensorflow-native-auto"% "2.3.1",
-//    libraryDependencies += "ai.djl.paddlepaddle" % "paddlepaddle-engine" % "0.10.0",
-//    libraryDependencies += "ai.djl.paddlepaddle" % "paddlepaddle-native-auto" % "2.0.0",
-//    libraryDependencies += "ai.djl.tflite" % "tflite-engine" % "0.10.0",
-//    libraryDependencies += "ai.djl.tflite" % "tflite-native-auto" % "2.4.1",
-    //Only needed for Axes
-    libraryDependencies += "com.github.EmergentOrder" %% "onnx-scala" % "0.12.0",
-    libraryDependencies += scalaTest % Test,
-    crossScalaVersions := Seq(dottyVersion, scala213Version)
-  )
-/*
-lazy val mixTest = (project in file("mixtest"))
-  .dependsOn(onnxscala, djl)
-  .settings(
-    name := "mixTest"
-)
-*/
