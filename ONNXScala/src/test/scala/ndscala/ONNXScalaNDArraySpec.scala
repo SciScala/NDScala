@@ -128,7 +128,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
     assertTypeError("arr.reshape[TT, TD, 3 #: 1 #: SNil]()")
   }
 
-  "Tensor" should "reduceSum wih keepdims on" in {
+  "Tensor" should "reduceSum with keepdims on" in {
     val arr = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult = Tensor(Array(126f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
     doAssert((arr.reduceSum[TT, 1 ::: INil, true]) ==== expectedResult)
@@ -138,6 +138,48 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val arr = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult = Tensor(Array(126f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: SNil)
     doAssert((arr.reduceSum[TT, 1 ::: INil, false]) ==== expectedResult)
+  }
+
+  "Tensor" should "reduceLogSum with keepdims on" in {
+    val arr = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(4.836282f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    doAssert((arr.reduceLogSum[TT, 1 ::: INil, true]) ==== expectedResult)
+  }
+
+  "Tensor" should "reduceMax with keepdims on" in {
+    val arr = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(84.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    doAssert((arr.reduceMax[TT, 1 ::: INil, true]) ==== expectedResult)
+  }
+
+  "Tensor" should "reduceMin with keepdims on" in {
+    val arr = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(42.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    doAssert((arr.reduceMin[TT, 1 ::: INil, true]) ==== expectedResult)
+  }
+
+  "Tensor" should "reduceProd with keepdims on" in {
+    val arr = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(3528.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    doAssert((arr.reduceProd[TT, 1 ::: INil, true]) ==== expectedResult)
+  }
+
+  "Tensor" should "reduceSumSquare with keepdims on" in {
+    val arr = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(8820.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    doAssert((arr.reduceSumSquare[TT, 1 ::: INil, true]) ==== expectedResult)
+  }
+
+  "Tensor" should "argmax" in {
+    val arr: Tensor[Float, (TT, "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)] = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult: Tensor[Long, (TT, "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)] = Tensor(Array(1),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    doAssert(arr.argMax[TT, 1 ::: INil, true] ==== expectedResult)
+  }
+
+  "Tensor" should "argmin" in {
+    val arr: Tensor[Float, (TT, "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)] = Tensor(Array(42f, 84f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult: Tensor[Long, (TT, "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)] = Tensor(Array(0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    doAssert(arr.argMin[TT, 1 ::: INil, true] ==== expectedResult)
   }
 
   "Tensor" should "transpose" in {
