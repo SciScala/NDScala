@@ -248,13 +248,53 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert(result ==== Tensor(Array(1.0, 4.0, 9.0, 8.0, 6.0, 7.0, 2.0, 3.0, 4.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 3 #: 3 #: SNil))
   }
 
-  /*
-  "Tensor" should "mean" in {
-    val arr: Tensor[Float] = (Array(1.0f, 4.0f, 9.0f), Mat(1,3))
-    val arrB: Tensor[Float] = (Array(3.0f, 2.0f, 3.0f), Mat(1,3))
-    doAssert((mean(Seq(arr, arrB))) ==== (Array(2.0f, 3.0f, 6.0f), Mat(1,3)))
+  "Tensor" should "sum" in {
+    val arr = Tensor(Array(1.0f, 4.0f, 9.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    val arrB = Tensor(Array(3.0f, 2.0f, 3.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil) 
+    val arrSeq: Seq[Tensor[Float, ("TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)]] = Seq(arr,arrB)
+    doAssert(Seq(arr, arrB).ndsum() ==== Tensor(Array(4.0f, 6.0f, 12.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)) 
   }
-*/
+
+  "Tensor" should "mean" in {
+    val arr = Tensor(Array(1.0f, 4.0f, 9.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    val arrB = Tensor(Array(3.0f, 2.0f, 3.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    val arrSeq: Seq[Tensor[Float, ("TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)]] = Seq(arr,arrB)
+    doAssert(Seq(arr, arrB).mean() ==== Tensor(Array(2.0f, 3.0f, 6.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "sign" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert(arr.sign() ==== Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "isNaN" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, java.lang.Float.NaN),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert(arr.isNaN() ==== Tensor(Array(false, false, true),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "not" in {
+    val arr = Tensor(Array(true, false, true),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert(!arr ==== Tensor(Array(false, true, false),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "and" in {
+    val arr = Tensor(Array(true, false, true),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    val arrB = Tensor(Array(true, false, false),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert(arr && arrB ==== Tensor(Array(true, false, false),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "or" in {
+    val arr = Tensor(Array(true, false, true),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    val arrB = Tensor(Array(true, false, false),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert(arr || arrB ==== Tensor(Array(true, false, true),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "xor" in {
+    val arr = Tensor(Array(true, false, true),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    val arrB = Tensor(Array(true, false, false),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert(arr ^ arrB ==== Tensor(Array(false, false, true),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
   "Tensor" should "sqrt" in {
     val arr = Tensor(Array(1.0, 4.0, 9.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
     doAssert((arr.sqrt()) ==== Tensor(Array(1.0, 2.0, 3.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
@@ -300,7 +340,56 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr.atanh()) ==== Tensor(Array(-0.54930615f, 0.0f, 0.54930615f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
-  //TODO: test sigmoid, relu
+  "Tensor" should "sigmoid" in {
+    val arr = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.sigmoid()) ==== Tensor(Array(0.2689414213699951f, 0.5f, 0.7310585786300049f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "relu" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.relu()) ==== Tensor(Array(0.0f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "leaky relu" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.leakyRelu()) ==== Tensor(Array(-0.005f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "celu" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.celu()) ==== Tensor(Array(-0.39346934f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "celu with alpha" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.celu(2.0f)) ==== Tensor(Array(-0.44239843f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "elu" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.elu()) ==== Tensor(Array(-0.39346933f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "elu with alpha" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.elu(2.0f)) ==== Tensor(Array(-0.78693867f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "selu" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.selu()) ==== Tensor(Array(-0.6917562f, 0.0f, 0.52535051f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "selu with alpha and gamma" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.selu(2.0f, 3.0f)) ==== Tensor(Array(-2.36081604f, 0.0f, 1.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
+
+  "Tensor" should "prelu" in {
+    val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    val slopeArr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.prelu(slopeArr)) ==== Tensor(Array(0.25f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+  }
 
   "Tensor" should "pow" in {
     val arr = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
