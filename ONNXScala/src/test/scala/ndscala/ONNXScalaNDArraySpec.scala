@@ -243,12 +243,19 @@ type TD = "TensorShapeDenotation" ##: TSNil
     arr.rank == 2
   }
 
-  /*
+
   "Tensor" should "clip" in {
-    val arr: Tensor[Double] = (Array(41.7, 84.5), Mat(1,2))
-    (arr.clip(50.0, 90.0)) shouldEqual (Array(50.0, 84.5), Mat(1,2))
+    val arr = Tensor(Array(42.0f, 84.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(50.0f, 80.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr.clip(50.0f, 80.0f)) ==== expectedResult)
   }
-*/
+
+  "Tensor" should "reciprocal" in {
+    val arr = Tensor(Array(42.0f, 84.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(0.023809524f, 0.011904762f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    doAssert((arr.reciprocal()) ==== expectedResult)
+  }
+
   "Tensor" should "unary subtract" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     doAssert((-arr) ==== Tensor(Array(-42, -84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
