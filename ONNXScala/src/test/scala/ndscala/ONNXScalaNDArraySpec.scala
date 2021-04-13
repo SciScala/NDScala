@@ -243,6 +243,18 @@ type TD = "TensorShapeDenotation" ##: TSNil
     arr.rank == 2
   }
 
+  "Tensor" should "softmax" in {
+    val arr = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    val expectedResult = Tensor(Array(0.09003057f, 0.24472848f, 0.66524094f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
+    doAssert((arr.softmax()) ==== expectedResult)
+  }
+
+  //This is a no-op without training mode
+  "Tensor" should "dropout" in {
+    val arr = Tensor(Array(42.0f, 84.0f, 168.0f, 336.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 4 #: SNil)
+    val expectedResult = Tensor(Array(42.0f, 84.0f, 168.0f, 336.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 4 #: SNil)
+    doAssert((arr.dropout(42, 0.5f)) ==== expectedResult)
+  }
 
   "Tensor" should "clip" in {
     val arr = Tensor(Array(42.0f, 84.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
