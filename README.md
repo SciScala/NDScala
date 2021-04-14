@@ -57,3 +57,6 @@ def train(X,Y,iter):
 
 The run time of the eager NDScala version is ~80% of that of NumPy w/MKL,
 while if we fuse the ops to a graph it's just ~65%.
+
+The PyTorch equivalent is slightly faster, at ~85% of the fused NDScala version run time.
+This can be accounted for by the copy overhead of passing data between the JVM and native memory.

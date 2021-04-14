@@ -25,7 +25,7 @@ lazy val core = (project in file("core"))
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     libraryDependencies += ("org.typelevel" %% "simulacrum" % "1.0.1").withDottyCompat(dottyVersion), //TODO: Move to simulacrum-scalafix
     libraryDependencies += ("org.typelevel" %% "spire" % "0.17.0").withDottyCompat(dottyVersion),
-    libraryDependencies += "org.emergent-order" %% "onnx-scala" % "0.12.0",
+    libraryDependencies += "org.emergent-order" %% "onnx-scala" % "0.13.0",
   //Local only  
 //  libraryDependencies += "io.kjaer" % "tf-dotty-compiletime" % "0.0.0+134-f1f8d0ba+20201020-1123-SNAPSHOT",
 //    libraryDependencies += "io.kjaer" % "tf-dotty-compiletime_0.27" % "0.0.0+134-f1f8d0ba+20201020-1123-SNAPSHOT",
