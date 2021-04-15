@@ -243,6 +243,17 @@ type TD = "TensorShapeDenotation" ##: TSNil
     arr.rank == 2
   }
 
+  "Tensor" should "gemm" in {
+    val arr = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val other = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
+    val bias = Tensor(Array(42.0), valueOf[TT], "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    val expectedResult = Tensor(Array(8862.0), valueOf[TT], "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    val result = (arr.gemm(other, Some(bias))) ==== expectedResult
+    doAssert(result)
+  }
+
+
+  //TODO: tests for tile, pad, normalization ops
   "Tensor" should "softmax" in {
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
     val expectedResult = Tensor(Array(0.09003057f, 0.24472848f, 0.66524094f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)

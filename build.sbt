@@ -23,7 +23,6 @@ lazy val core = (project in file("core"))
     scalacOptions += "-Ymacro-annotations",
     resolvers += Resolver.mavenLocal,
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-    libraryDependencies += ("org.typelevel" %% "simulacrum" % "1.0.1").withDottyCompat(dottyVersion), //TODO: Move to simulacrum-scalafix
     libraryDependencies += ("org.typelevel" %% "spire" % "0.17.0").withDottyCompat(dottyVersion),
     libraryDependencies += "org.emergent-order" %% "onnx-scala" % "0.13.0",
   //Local only  
@@ -37,7 +36,7 @@ lazy val onnxscala = (project in file("ONNXScala"))
   .settings(
     name := "ndscala-onnx-scala",
     libraryDependencies += ("org.typelevel" %% "spire" % "0.17.0").withDottyCompat(dottyVersion),
-    libraryDependencies += "org.emergent-order" %% "onnx-scala-backends" % "0.12.0",
+    libraryDependencies += "org.emergent-order" %% "onnx-scala-backends" % "0.13.0",
 //    libraryDependencies += "org.bytedeco" % "dnnl-platform" % "1.6.4-1.5.5-SNAPSHOT",
 //    libraryDependencies += "com.github.rssh" %% "dotty-cps-async" % "0.2.1-RC1",
     libraryDependencies += scalaTest % Test,
