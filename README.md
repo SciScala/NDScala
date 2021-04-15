@@ -24,8 +24,8 @@ def train(x: Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)],
         val error = y - l2
         val l2Delta = (error) * (l2 * (ones - l2))
         val l1Delta =  (l2Delta.matmul(w1.transpose))
-        val w0New = w0 + (((x.transpose).matmul(l1Delta)))
         val w1New = w1 + (((l1.transpose).matmul(l2Delta)))
+        val w0New = w0 + (((x.transpose).matmul(l1Delta)))
         train(x,y,w0New,w1New,iter-1)
 ```
 
@@ -36,7 +36,7 @@ and then you can fuse the operations into a single optimized ONNX graph, and exe
   val onnxBytesTraining = fusedTraining.toByteArray
   val fusedModelTraining = new ORTModelBackend(onnxBytesTraining)
 
-  val trainOut = fusedModelTraining.fullModel[Float, TT, TD, TENKXONE](x, y, w0, w1)
+  val trainOut = fusedModelTraining.fullModel[Float, "TensorLabel", AxisLabels, Mat10kx10k](x, y, w0, w1)
 ```
 
 And for reference, in NumPy, in 10 lines:
