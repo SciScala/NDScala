@@ -282,6 +282,12 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr.dropout(42, 0.5f)) ==== expectedResult)
   }
 
+  "Tensor" should "dropout with training mode enabled" in {
+    val arr = Tensor(Array(42.0f, 84.0f, 168.0f, 336.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 4 #: SNil)
+    val expectedResult = Tensor(Array(0.0f, 84.0f, 168.0f, 0.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 4 #: SNil)
+    doAssert((arr.dropout(42, 0.5f, true)) ==== expectedResult)
+  }
+
   "Tensor" should "clip" in {
     val arr = Tensor(Array(42.0f, 84.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult = Tensor(Array(50.0f, 80.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
