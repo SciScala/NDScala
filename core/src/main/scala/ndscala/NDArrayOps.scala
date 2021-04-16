@@ -34,7 +34,7 @@ trait NDArrayOps[SomeNDArray[_ <: AllSupported, _ <: Axes]] {
   type IsFloatSupported[T] = Contains[T, UnionFloatSupported]
 
   //TODO: missing ops
-  // numpy does: pad, range, concat, square(Missing), argmax/min
+  // numpy does: range
  
   //Nullary / factory ops
   def zeros[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
@@ -60,7 +60,7 @@ trait NDArrayOps[SomeNDArray[_ <: AllSupported, _ <: Axes]] {
 
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def slice[Tt2 <: TensorTypeDenotation, AxesStart <: Indices, AxesEnd <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[SlicedShape[AxesStart,AxesEnd]], i: IndicesOf[AxesStart], i2: IndicesOf[AxesEnd]): SomeNDArray[DType, (Tt2,Td,SlicedShape[AxesStart,AxesEnd])]
 
-  extension[DType <: NumericSupported : ClassTag : Numeric: IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def pad[Tt2 <: TensorTypeDenotation, AxesBefore <: Indices, AxesAfter <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[PaddedShape[S,AxesBefore,AxesAfter]], i: IndicesOf[AxesBefore], i2: IndicesOf[AxesAfter]): SomeNDArray[DType, (Tt2,Td,PaddedShape[S,AxesBefore,AxesAfter])]
+  extension[DType <: NumericSupported : ClassTag : Numeric: IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def pad[Tt2 <: TensorTypeDenotation, AxesBefore <: Indices, AxesAfter <: Indices](constantValue: DType)(using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[PaddedShape[S,AxesBefore,AxesAfter]], i: IndicesOf[AxesBefore], i2: IndicesOf[AxesAfter]): SomeNDArray[DType, (Tt2,Td,PaddedShape[S,AxesBefore,AxesAfter])]
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def tile[Tt2 <: TensorTypeDenotation, AxisRepeats <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[TiledShape[S, AxisRepeats]], i: IndicesOf[AxisRepeats]): SomeNDArray[DType, (Tt2,Td,TiledShape[S, AxisRepeats])]
 
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def shape[Tt2 <: TensorTypeDenotation, Td2 <: TensorShapeDenotation](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td2], s2: ShapeOf[io.kjaer.compiletime.Shape.Rank[S] & Dimension #: SNil]): SomeNDArray[Long, (Tt2,Td2,io.kjaer.compiletime.Shape.Rank[S] & Dimension #: SNil)]

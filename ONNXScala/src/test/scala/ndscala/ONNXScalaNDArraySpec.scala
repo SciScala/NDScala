@@ -238,6 +238,21 @@ type TD = "TensorShapeDenotation" ##: TSNil
     //assertTypeError("") 
   }
 */
+
+  "Tensor" should "pad" in {
+    val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
+    val padValue = 42
+    val expectedResult = Tensor(Array(42, 1, 2, 3, 4, 42),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 6 #: SNil)
+
+    doAssert((arr.pad[TT, 1 ::: INil, 1 ::: INil](42)) ==== expectedResult)
+  }
+
+  "Tensor" should "tile" in {
+    val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
+    val expectedResult = Tensor(Array(1, 2, 3, 4, 1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 8 #: SNil)
+    doAssert((arr.tile[TT, 2 ::: INil]) ==== expectedResult)
+  }
+
   "Tensor" should "rank" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     arr.rank == 2
@@ -252,8 +267,8 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert(result)
   }
 
+  //TODO: tests for normalization ops
 
-  //TODO: tests for tile, pad, normalization ops
   "Tensor" should "softmax" in {
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
     val expectedResult = Tensor(Array(0.09003057f, 0.24472848f, 0.66524094f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
