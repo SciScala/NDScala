@@ -267,7 +267,33 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert(result)
   }
 
-  //TODO: tests for normalization ops
+  "Tensor" should "lrn" in {
+    //NCHW tensor, 3 channels, 1 pixel
+    val arr = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: 1 #: 1 #: SNil)
+    val expectedResult = Tensor(Array(-0.99997497f, 0.0f, 0.99997497f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: 1 #: 1 #: SNil)
+    doAssert((arr.lrn(size=3)) ==== expectedResult)
+  }
+
+  "Tensor" should "instance normalization" in {
+    //NCHW tensor, 2 channels, height 1, width 3
+    val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f, 3.0f, 4.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: 1 #: 3 #: SNil)
+    val scale = Tensor(Array(1.0f, 1.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
+    val bias = Tensor(Array(0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
+    val expectedResult = Tensor(Array(-1.2247356f, 0.0f, 1.2247356f, -0.8371035f, 1.0f, 2.8371034f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: 1 #: 3 #: SNil)
+    doAssert((arr.instanceNormalization(scale=scale, b=bias)) ==== expectedResult)
+  }
+
+  "Tensor" should "batch normalization" in {
+    //NCHW tensor, batch 2, channels 2, height 1, width 3
+    val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 1.0f, 0.0f, -1.0f, -2.0f, -3.0f, -4.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: 1 #: 3 #: SNil)
+    val scale = Tensor(Array(1.0f, 1.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
+    val bias = Tensor(Array(0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
+    val mean = Tensor(Array(0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
+    val variance = Tensor(Array(0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
+
+    val expectedResult = Tensor(Array(-316.22778f, 0.0f, 316.22778f, 2.4999924f, 3.9999852f, 5.4999776f, 316.22778f, 0.0f, -316.22778f, -3.4999776f, -4.99997f, -6.4999623f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: 1 #: 3 #: SNil)
+    doAssert((arr.batchnorm(scale=scale, b=bias, mean = mean, someVar = variance)) ==== expectedResult)
+  }
 
   "Tensor" should "softmax" in {
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
