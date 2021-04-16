@@ -29,7 +29,7 @@ def train(x: Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)],
         train(x,y,w0New,w1New,iter-1)
 ```
 
-and then you can fuse the operations into a single optimized ONNX graph, and execute it:
+Then you can fuse the operations into a single optimized ONNX graph and run it (using [ONNX-Scala](https://github.com/EmergentOrder/onnx-scala)):
 
 ```scala
   val fusedTraining = fuseOps
