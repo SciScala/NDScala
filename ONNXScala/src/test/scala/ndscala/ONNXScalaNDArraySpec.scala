@@ -244,7 +244,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val padValue = 42
     val expectedResult = Tensor(Array(42, 1, 2, 3, 4, 42),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 6 #: SNil)
 
-    doAssert((arr.pad[TT, 1 ::: INil, 1 ::: INil](42)) ==== expectedResult)
+    doAssert((arr.pad[TT, 1 #: SNil, 1 #: SNil](42)) ==== expectedResult)
   }
 
   "Tensor" should "tile" in {
@@ -284,6 +284,15 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((result) ==== expectedResult)
   }
 
+  "Tensor" should "average pool w/ pads" in {
+    //NCHW tensor, 3 channels, 1 pixel
+    val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
+    val kernelShape = 1 #: 2 #: SNil
+    val expectedResult = Tensor(Array(-1.0f,-0.5f,0.5f,1.5f,2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 5 #: SNil)
+    val result: Tensor[Float, Tuple3["TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 5 #: SNil]] = arr.averagePool(kernelShape, 0 #: 1 #: SNil, 0 #: 1 #: SNil)
+    doAssert((result) ==== expectedResult)
+  }
+
   "Tensor" should "max pool" in {
     //NCHW tensor, 3 channels, 1 pixel
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
@@ -291,6 +300,15 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val expectedResult = Tensor(Array(0.0f,1.0f,2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 3 #: SNil)
     val result: Tensor[Float, Tuple3["TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 3 #: SNil]] = arr.maxPool(kernelShape)
 
+    doAssert((result) ==== expectedResult)
+  }
+
+  "Tensor" should "max pool w/ pads" in {
+    //NCHW tensor, 3 channels, 1 pixel
+    val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
+    val kernelShape = 1 #: 2 #: SNil
+    val expectedResult = Tensor(Array(-1.0f,0.0f,1.0f,2.0f,2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 5 #: SNil)
+    val result: Tensor[Float, Tuple3["TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 5 #: SNil]] = arr.maxPool(kernelShape, 0 #: 1 #: SNil, 0 #: 1 #: SNil)
     doAssert((result) ==== expectedResult)
   }
 
