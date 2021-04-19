@@ -274,8 +274,19 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr.lrn(size=3)) ==== expectedResult)
   }
 
+  "Tensor" should "conv" in {
+    //NCHW tensor, 1 channel, 4 pixels
+    val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
+    val kernelShape = 1 #: 2 #: SNil
+    val w = Tensor(Array(1.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 2 #: SNil)
+    val expectedResult = Tensor(Array(-1.0f, 1.0f, 3.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 3 #: SNil)
+    val result: Tensor[Float, Tuple3["TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 3 #: SNil]] = arr.conv(kernelShape, w)
+
+    doAssert((result) ==== expectedResult)
+  }
+
   "Tensor" should "global average pool" in {
-    //NCHW tensor, 3 channels, 1 pixel
+    //NCHW tensor, 1 channel, 4 pixels
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
     val expectedResult = Tensor(Array(0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 1 #: SNil)
     val result: Tensor[Float, Tuple3["TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 1 #: SNil]] = arr.globalAveragePool()
@@ -283,7 +294,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
   }
 
   "Tensor" should "average pool" in {
-    //NCHW tensor, 3 channels, 1 pixel
+    //NCHW tensor, 1 channel, 4 pixels
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
     val kernelShape = 1 #: 2 #: SNil
     val expectedResult = Tensor(Array(-0.5f,0.5f,1.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 3 #: SNil)
@@ -293,7 +304,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
   }
 
   "Tensor" should "average pool w/ pads" in {
-    //NCHW tensor, 3 channels, 1 pixel
+    //NCHW tensor, 1 channel, 4 pixels
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
     val kernelShape = 1 #: 2 #: SNil
     val expectedResult = Tensor(Array(-1.0f,-0.5f,0.5f,1.5f,2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 5 #: SNil)
@@ -302,7 +313,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
   }
 
   "Tensor" should "global max pool" in {
-    //NCHW tensor, 3 channels, 1 pixel
+    //NCHW tensor, 1 channel, 4 pixels
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
     val expectedResult = Tensor(Array(2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 1 #: SNil)
     val result: Tensor[Float, Tuple3["TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 1 #: SNil]] = arr.globalMaxPool()
@@ -310,7 +321,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
   }
 
   "Tensor" should "max pool" in {
-    //NCHW tensor, 3 channels, 1 pixel
+    //NCHW tensor, 1 channels, 4 pixels
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
     val kernelShape = 1 #: 2 #: SNil
     val expectedResult = Tensor(Array(0.0f,1.0f,2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 3 #: SNil)
@@ -320,7 +331,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
   }
 
   "Tensor" should "max pool w/ pads" in {
-    //NCHW tensor, 3 channels, 1 pixel
+    //NCHW tensor, 1 channel, 4 pixels
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
     val kernelShape = 1 #: 2 #: SNil
     val expectedResult = Tensor(Array(-1.0f,0.0f,1.0f,2.0f,2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 5 #: SNil)
