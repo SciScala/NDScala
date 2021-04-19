@@ -274,6 +274,14 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr.lrn(size=3)) ==== expectedResult)
   }
 
+  "Tensor" should "global average pool" in {
+    //NCHW tensor, 3 channels, 1 pixel
+    val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
+    val expectedResult = Tensor(Array(0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 1 #: SNil)
+    val result: Tensor[Float, Tuple3["TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 1 #: SNil]] = arr.globalAveragePool()
+    doAssert((result) ==== expectedResult)
+  }
+
   "Tensor" should "average pool" in {
     //NCHW tensor, 3 channels, 1 pixel
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
@@ -290,6 +298,14 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val kernelShape = 1 #: 2 #: SNil
     val expectedResult = Tensor(Array(-1.0f,-0.5f,0.5f,1.5f,2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 5 #: SNil)
     val result: Tensor[Float, Tuple3["TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 5 #: SNil]] = arr.averagePool(kernelShape, 0 #: 1 #: SNil, 0 #: 1 #: SNil)
+    doAssert((result) ==== expectedResult)
+  }
+
+  "Tensor" should "global max pool" in {
+    //NCHW tensor, 3 channels, 1 pixel
+    val arr = Tensor(Array(-1.0f, 0.0f, 1.0f, 2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 4 #: SNil)
+    val expectedResult = Tensor(Array(2.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 1 #: SNil)
+    val result: Tensor[Float, Tuple3["TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 1 #: SNil]] = arr.globalMaxPool()
     doAssert((result) ==== expectedResult)
   }
 
