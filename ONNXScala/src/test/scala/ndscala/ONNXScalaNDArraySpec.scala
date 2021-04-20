@@ -247,6 +247,14 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr.pad[TT, 1 #: SNil, 1 #: SNil](42)) ==== expectedResult)
   }
 
+  "Tensor" should "flatten" in {
+    val arr = Tensor(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: 2 #: 2 #: SNil )
+    val expectedResult = Tensor(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 8 #: SNil)
+    val res: Tensor[Int, Tuple3[TT, TD, 2 #: 8 #: SNil]] = arr.flatten[TT, 1 ::: INil]
+
+    doAssert((res) ==== expectedResult)
+  }
+
   "Tensor" should "tile" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
     val expectedResult = Tensor(Array(1, 2, 3, 4, 1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 8 #: SNil)
@@ -338,7 +346,6 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val result: Tensor[Float, Tuple3["TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: 1 #: 5 #: SNil]] = arr.maxPool(kernelShape, 0 #: 1 #: SNil, 0 #: 1 #: SNil)
     doAssert((result) ==== expectedResult)
   }
-
 
   "Tensor" should "instance normalization" in {
     //NCHW tensor, 2 channels, height 1, width 3
