@@ -123,6 +123,12 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr.reshape[TT, TD, 2 #: 1 #: SNil]) ==== expectedResult)
   }
 
+  "Tensor" should "expand" in {
+    val arr = Tensor(Array(42),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    val expectedResult = Tensor(Array(42, 42, 42, 42),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: SNil)
+    doAssert((arr.expand[TT, TD, 2 #: 2 #: SNil]) ==== expectedResult)
+  }
+
   "Tensor" should "fail to compile reshape where the new shape has wrong size" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     assertTypeError("arr.reshape[TT, TD, 3 #: 1 #: SNil]()")
@@ -229,7 +235,6 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
     doAssert((arr.squeeze[TT, 0 ::: INil]) ==== expectedResult)
   }
-
  
   /*
   "Tensor" should "fail to compile squeeze when indices out of range" in {
@@ -238,6 +243,12 @@ type TD = "TensorShapeDenotation" ##: TSNil
     //assertTypeError("") 
   }
 */
+  "Tensor" should "unsqueeze" in {
+    val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
+    val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
+    val result = arr.unsqueeze[TT, 0 ::: INil]
+    doAssert((result) ==== expectedResult)
+  }
 
   "Tensor" should "pad" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )

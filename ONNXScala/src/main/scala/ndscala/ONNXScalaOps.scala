@@ -123,10 +123,9 @@ given NDArrayOps[Tensor] with {
 
 
   //Unary ops
-//  def reshape[DType <: Supported : ClassTag: Numeric](arr: Tensor[DType], newShape: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType] 
   extension [DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def reshape[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1], sizeSeq: NumElements[S] =:= NumElements[S1]): Tensor[DType, (Tt1,Td1,S1)] = onnx.ReshapeV13("reshape", arr,
     Tensor(shapeOf[S1].toSeq.toArray.map(x => x.toLong), tt1.value, td1.value, Shape.fromSeq(ArraySeq.unsafeWrapArray(Array(shapeOf[S1].toSeq.size))))) //wrong denotations
-
+    extension [DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](arr: Tensor[DType, (Tt,Td,S)]) def expand[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](using tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1]): Tensor[DType, (Tt1,Td1,S1)] = onnx.ExpandV13("expand", arr, Tensor(shapeOf[S1].toSeq.toArray.map(x => x.toLong), tt1.value, td1.value, Shape.fromSeq(ArraySeq.unsafeWrapArray(Array(shapeOf[S1].toSeq.size)))))
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def transpose(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): Tensor[DType, (Tt,Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])] = onnx.TransposeV13("transpose", None, arr)
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def transpose(axes: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): Tensor[DType, (Tt,Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])] = onnx.TransposeV13("transpose", Some(axes.toArray), arr)
   extension[DType <: FloatSupported : ClassTag: Numeric : IsFloatSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def round()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)]  = onnx.RoundV11("round", arr)
@@ -139,10 +138,10 @@ given NDArrayOps[Tensor] with {
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: Tensor[DType, (Tt,Td,S)]) def tile[Tt2 <: TensorTypeDenotation, AxisRepeats <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[TiledShape[S, AxisRepeats]], i: IndicesOf[AxisRepeats]): Tensor[DType, (Tt2,Td,TiledShape[S, AxisRepeats])] = onnx.TileV13("tile", arr, indicesOf[AxisRepeats])
 
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: Tensor[DType, (Tt,Td,S)]) def shape[Tt2 <: TensorTypeDenotation, Td2 <: TensorShapeDenotation](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td2], s2: ShapeOf[io.kjaer.compiletime.Shape.Rank[S] & Dimension #: SNil]): Tensor[Long, (Tt2,Td2,io.kjaer.compiletime.Shape.Rank[S] & Dimension #: SNil)] = onnx.ShapeV13[DType,Long, Tt,Td, S, Tt2, Td2]("shape", arr)
-
-
-  //currently can't infer return type
+ 
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def squeeze[Tt1 <: TensorTypeDenotation, Axes <: Indices](using tt: ValueOf[Tt1], td: TensorShapeDenotationOf[KeepOrReduceDimDenotations[Td,Axes,false]], s: ShapeOf[KeepOrReduceDims[S,Axes,false]], i: IndicesOf[Axes]): Tensor[DType, Tuple3[Tt1,KeepOrReduceDimDenotations[Td,Axes,false],KeepOrReduceDims[S,Axes,false]]] = onnx.SqueezeV13("squeeze",Some(indicesOf[Axes]),arr)
+  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def unsqueeze[Tt1 <: TensorTypeDenotation, Axes <: Indices](using tt: ValueOf[Tt1], td: TensorShapeDenotationOf[Td], s: ShapeOf[UnsqueezeShape[S,Axes]], i: IndicesOf[Axes]): Tensor[DType, Tuple3[Tt1,Td,UnsqueezeShape[S,Axes]]] = onnx.UnsqueezeV13("unsqueeze",Some(indicesOf[Axes]),arr)
+
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def rank: Int = arr.shape.size
 
   extension[DType <: NumericSupported : ClassTag: Numeric : IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def unary_- (using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = onnx.NegV13("neg", arr)
