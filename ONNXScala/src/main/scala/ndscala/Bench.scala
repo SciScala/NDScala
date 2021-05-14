@@ -46,8 +46,8 @@ val arrW1:Array[Float] = (Array.fill(10000000)(thisRandom.nextFloat)).map(_.toFl
 val y = Tensor(arrY,"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 10000 #: 1000 #: SNil)
 val x = Tensor(arrX,"TensorTypeDenotation","TensorShapeDenotation" ##: TSNil, 10000 #: 10000 #: SNil)
 
-var w0:Tensor[Float, (TT, TD, TENKXTENK)] = (Tensor(arrW0,"TensorTypeDenotation","TensorShapeDenotation" ##: TSNil, 10000 #: 10000 #: SNil) - moreOnes) / more10ks
-var w1:Tensor[Float, (TT, TD, TENKXONE)] = (Tensor(arrW1,"TensorTypeDenotation","TensorShapeDenotation" ##: TSNil, 10000 #: 1000 #: SNil) - ones ) /some10ks
+val w0:Tensor[Float, (TT, TD, TENKXTENK)] = (Tensor(arrW0,"TensorTypeDenotation","TensorShapeDenotation" ##: TSNil, 10000 #: 10000 #: SNil) - moreOnes) / more10ks
+val w1:Tensor[Float, (TT, TD, TENKXONE)] = (Tensor(arrW1,"TensorTypeDenotation","TensorShapeDenotation" ##: TSNil, 10000 #: 1000 #: SNil) - ones ) /some10ks
 
 
 //Disabling broadcasting for ones may have slowed things down
@@ -64,9 +64,9 @@ def train = {
 
       //Simulate in-place += op here 
       
-      w0 = w0 + (((x.transpose).matmul(l1Delta))) //*moreLrs)
-      w1 = w1 + (((l1.transpose).matmul(l2Delta))) //*lrs)
-    
+      val w0Upd = w0 + (((x.transpose).matmul(l1Delta))) //*moreLrs)
+      val w1Upd = w1 + (((l1.transpose).matmul(l2Delta))) //*lrs)
+      (w0Upd, w1Upd)
 }
 val before = System.nanoTime; for (j <- 0 until iters) {
   val result = train
