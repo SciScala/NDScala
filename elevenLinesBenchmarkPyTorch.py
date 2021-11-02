@@ -8,7 +8,7 @@ y = torch.randn((1000,10000)).T.float()
 
 print(X.shape)
 print(X.dtype)
-iter = 1
+iter = 5
 
 def elevenlines(): 
     syn0 = 2*torch.randn((10000,10000)).float() - 1

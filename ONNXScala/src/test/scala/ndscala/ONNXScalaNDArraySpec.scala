@@ -257,7 +257,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
 
     doAssert((arr.pad[TT, 1 #: SNil, 1 #: SNil](42)) ==== expectedResult)
   }
-
+/*
   "Tensor" should "gather" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
     val expectedResult = Tensor(Array(2, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
@@ -272,7 +272,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
 
     doAssert((res) ==== expectedResult)
   }
-
+*/
   "Tensor" should "tile" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
     val expectedResult = Tensor(Array(1, 2, 3, 4, 1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 8 #: SNil)
