@@ -2,3 +2,4 @@ target/
 core/target/
 project/project/
 project/target/
+.bsp
