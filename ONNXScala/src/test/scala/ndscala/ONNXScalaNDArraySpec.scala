@@ -587,7 +587,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
 
   "Tensor" should "selu" in {
     val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
-    doAssert((arr.selu()) ==== Tensor(Array(-0.6917562f, 0.0f, 0.52535051f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+    doAssert((arr.selu()) ==== Tensor(Array(-0.6917561f, 0.0f, 0.52535f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor" should "selu with alpha and gamma" in {

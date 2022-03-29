@@ -26,7 +26,6 @@ object ONNXScalaOps {
 //   
 //  }
   val onnx = new ORTOperatorBackendAll()
-  def fuseOps = onnx.fuseOps
 }
 
 //TODO: Stricter type bounds because ORT doesn't implement them all
