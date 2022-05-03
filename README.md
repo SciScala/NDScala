@@ -29,16 +29,6 @@ def train(x: Tensor[Float, ("TensorLabel", AxisLabels, Mat10kX10k)],
         train(x,y,w0New,w1New,iter-1)
 ```
 
-Then you can fuse the operations into a single optimized ONNX graph and run it (using [ONNX-Scala](https://github.com/EmergentOrder/onnx-scala)):
-
-```scala
-  val fusedTraining = fuseOps
-  val onnxBytesTraining = fusedTraining.toByteArray
-  val fusedModelTraining = new ORTModelBackend(onnxBytesTraining)
-
-  val trainOut = fusedModelTraining.fullModel[Float, "TensorLabel", AxisLabels, Mat10kx10k](x, y, w0, w1)
-```
-
 And for reference, in NumPy, in 10 lines:
 
 ```python
@@ -55,8 +45,7 @@ def train(X,Y,iter):
         syn0 += X.T.dot(l1_delta) 
 ```
 
-The run time of the eager NDScala version is ~80% of that of NumPy w/MKL,
-while if we fuse the ops to a graph it's just ~65%.
+The run time of the NDScala version is ~80% of that of NumPy w/MKL
 
-The PyTorch equivalent is slightly faster, at ~85% of the fused NDScala version run time.
+The PyTorch equivalent is slightly faster, at ~85% of the NDScala version run time.
 This can be accounted for by the copy overhead of passing data between the JVM and native memory.
