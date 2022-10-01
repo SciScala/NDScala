@@ -60,11 +60,11 @@ trait NDArrayOps[SomeNDArray[_ <: AllSupported, _ <: Axes]] {
 //  extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def slice[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](start: Int, end: Int)(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1]): SomeNDArray[DType, (Tt1,Td1,S1)]
 
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def slice[Tt2 <: TensorTypeDenotation, AxesStart <: Indices, AxesEnd <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[SlicedShape[AxesStart,AxesEnd]], i: IndicesOf[AxesStart], i2: IndicesOf[AxesEnd]): SomeNDArray[DType, (Tt2,Td,SlicedShape[AxesStart,AxesEnd])]
-/*
-  extension[DType <: NumericSupported : ClassTag : Numeric: IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def gather[Tt2 <: TensorTypeDenotation, Td2 <: TensorShapeDenotation, AxisIndex <: Index ::: INil, AxisIndices <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td2], s2: ShapeOf[GatheredShape[S, AxisIndex, AxisIndices]], i: IndicesOf[AxisIndex], i2: IndicesOf[AxisIndices]): SomeNDArray[DType, (Tt2,Td2,GatheredShape[S, AxisIndex, AxisIndices])]
+
+//  extension[DType <: NumericSupported : ClassTag : Numeric: IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def gather[Tt2 <: TensorTypeDenotation, Td2 <: TensorShapeDenotation, AxisIndex <: Index ::: INil, AxisIndices <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td2], s2: ShapeOf[GatheredShape[S, AxisIndex, AxisIndices]], i: IndicesOf[AxisIndex], i2: IndicesOf[AxisIndices]): SomeNDArray[DType, (Tt2,Td2,GatheredShape[S, AxisIndex, AxisIndices])]
 
   extension[DType <: NumericSupported : ClassTag : Numeric: IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def flatten[Tt2 <: TensorTypeDenotation, AxisIndex <: Index ::: INil](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[FlattenedShape[S, AxisIndex]], i: IndicesOf[AxisIndex]): SomeNDArray[DType, (Tt2,Td,FlattenedShape[S, AxisIndex])]
-*/
+
   extension[DType <: Supported : ClassTag : IsSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def tile[Tt2 <: TensorTypeDenotation, AxisRepeats <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[TiledShape[S, AxisRepeats]], i: IndicesOf[AxisRepeats]): SomeNDArray[DType, (Tt2,Td,TiledShape[S, AxisRepeats])]
 
 
