@@ -1,6 +1,8 @@
 import scala.xml.transform.{RewriteRule, RuleTransformer}
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 val scala3Version = "3.2.0"
+val scalaTestVersion = "3.2.14"
 
 ThisBuild / scalaVersion     := scala3Version
 ThisBuild / version          := "0.1.0-SNAPSHOT"
@@ -12,29 +14,33 @@ Global / concurrentRestrictions := Seq(
 )
 
 
-lazy val scalaTest = ("org.scalatest" %% "scalatest" % "3.2.14")
-lazy val core = (project in file("core"))
+lazy val core = (crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .crossType(CrossType.Pure) in file("core"))
   .settings(
     name := "ndscala-core",
     scalacOptions += "-Ymacro-annotations",
-//    scalacOptions += "-release:19",
+    scalacOptions += "-release:19",
     scalacOptions += "-source:3.2",
     resolvers += Resolver.mavenLocal,
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-    libraryDependencies += ("org.typelevel" %% "spire" % "0.18.0"),
-    libraryDependencies += "org.emergent-order" %% "onnx-scala" % "0.17.0"
+    libraryDependencies += ("org.typelevel" %%% "spire" % "0.18.0"),
+    libraryDependencies += "org.emergent-order" %%% "onnx-scala" % "0.17.0"
   //Local only  
 //  libraryDependencies += "io.kjaer" % "tf-dotty-compiletime" % "0.0.0+134-f1f8d0ba+20201020-1123-SNAPSHOT",
 //    libraryDependencies += "io.kjaer" % "tf-dotty-compiletime_0.27" % "0.0.0+134-f1f8d0ba+20201020-1123-SNAPSHOT",
 //    libraryDependencies += scalaTest % Test,
    )
-lazy val onnxscala = (project in file("ONNXScala"))
+lazy val onnxscala = (crossProject(JSPlatform, JVMPlatform, NativePlatform)
+  .crossType(CrossType.Pure) in file("ONNXScala"))
   .dependsOn(core)
   .settings(
     name := "ndscala-onnx-scala",
-    libraryDependencies += ("org.typelevel" %% "spire" % "0.18.0"),
-    libraryDependencies += "org.emergent-order" %% "onnx-scala-backends" % "0.17.0",
+    scalacOptions += "-release:19",
+    scalacOptions += "-source:3.2",
+    libraryDependencies += ("org.typelevel" %%% "spire" % "0.18.0"),
+    libraryDependencies += "org.emergent-order" %%% "onnx-scala-backends" % "0.17.0",
+    libraryDependencies += ("org.scalatest" %%% "scalatest" % scalaTestVersion) % Test,
 //    libraryDependencies += "org.bytedeco" % "dnnl-platform" % "1.6.4-1.5.5-SNAPSHOT",
 //    libraryDependencies += "com.github.rssh" %% "dotty-cps-async" % "0.2.1-RC1",
-    libraryDependencies += scalaTest % Test
+//    libraryDependencies += scalaTest % Test
   )
