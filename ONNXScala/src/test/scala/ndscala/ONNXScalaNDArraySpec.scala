@@ -120,7 +120,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
   "Tensor" should "reshape" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
-    doAssert((arr.reshape[TT, TD, 2 #: 1 #: SNil]) ==== expectedResult)
+    doAssert((arr.reshape[TT, TD, 2 #: 1 #: SNil](Some(0))) ==== expectedResult)
   }
 
   "Tensor" should "expand" in {
