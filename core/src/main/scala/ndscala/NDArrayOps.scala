@@ -3,6 +3,7 @@ package org.sciscala.ndscala
 import scala.reflect.ClassTag
 import spire.math.Numeric
 
+import cats.effect.IO
 import org.emergentorder.onnx.Tensors._
 //import org.emergentorder.=!=
 import io.kjaer.compiletime._
@@ -53,7 +54,7 @@ trait NDArrayOps[SomeNDArray[_ <: AllSupported, _ <: Axes]] {
 
 //  extension[DType <: NumericSupported : ClassTag : Numeric: IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def gather[Tt2 <: TensorTypeDenotation, Td2 <: TensorShapeDenotation, AxisIndex <: Index ::: INil, AxisIndices <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td2], s2: ShapeOf[GatheredShape[S, AxisIndex, AxisIndices]], i: IndicesOf[AxisIndex], i2: IndicesOf[AxisIndices]): SomeNDArray[DType, (Tt2,Td2,GatheredShape[S, AxisIndex, AxisIndices])]
 
-  extension[DType <: NumericSupported : ClassTag : Numeric, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def flatten[Tt2 <: TensorTypeDenotation, AxisIndex <: Index ::: INil](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[FlattenedShape[S, AxisIndex]], i: IndicesOf[AxisIndex]): SomeNDArray[DType, (Tt2,Td,FlattenedShape[S, AxisIndex])]
+  extension[DType <: NumericSupported : ClassTag : Numeric, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def flatten_[Tt2 <: TensorTypeDenotation, AxisIndex <: Index ::: INil](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[FlattenedShape[S, AxisIndex]], i: IndicesOf[AxisIndex]): SomeNDArray[DType, (Tt2,Td,FlattenedShape[S, AxisIndex])]
 
   extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def tile[Tt2 <: TensorTypeDenotation, AxisRepeats <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[TiledShape[S, AxisRepeats]], i: IndicesOf[AxisRepeats]): SomeNDArray[DType, (Tt2,Td,TiledShape[S, AxisRepeats])]
 
@@ -65,7 +66,7 @@ trait NDArrayOps[SomeNDArray[_ <: AllSupported, _ <: Axes]] {
   extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def squeeze[Tt1 <: TensorTypeDenotation, Axes <: Indices](using tt: ValueOf[Tt1], td: TensorShapeDenotationOf[KeepOrReduceDimDenotations[Td,Axes,false]], s: ShapeOf[KeepOrReduceDims[S,Axes,false]], i: IndicesOf[Axes]): SomeNDArray[DType, Tuple3[Tt1,KeepOrReduceDimDenotations[Td,Axes,false],KeepOrReduceDims[S,Axes,false]]]
   extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def unsqueeze[Tt1 <: TensorTypeDenotation, Axes <: Indices](using tt: ValueOf[Tt1], td: TensorShapeDenotationOf[Td], s: ShapeOf[UnsqueezeShape[S,Axes]], i: IndicesOf[Axes]): SomeNDArray[DType, Tuple3[Tt1,Td,UnsqueezeShape[S,Axes]]]
 
-  extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def rank: Int
+  extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def rank: IO[Int]
 
   extension[DType <: NumericSupported : ClassTag: Numeric, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def unary_- (using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
   extension[DType <: NumericSupported : ClassTag : Numeric, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def abs()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]

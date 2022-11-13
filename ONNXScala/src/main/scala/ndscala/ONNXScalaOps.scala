@@ -8,6 +8,7 @@ import spire.math._
 //import spire.implicits.Numeric
 import scala.language.implicitConversions
 
+import cats.effect.IO
 import io.kjaer.compiletime._
 import io.kjaer.compiletime.Shape.NumElements
 import org.emergentorder.compiletime._
@@ -134,7 +135,7 @@ given NDArrayOps[Tensor] with {
 
 
 //  extension[DType <: NumericSupported : ClassTag : Numeric: IsNumericSupported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def gather[Tt2 <: TensorTypeDenotation, Td2 <: TensorShapeDenotation, AxisIndex <: Index ::: INil, AxisIndices <: Indices](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td2], s2: ShapeOf[GatheredShape[S, AxisIndex, AxisIndices]], i: IndicesOf[AxisIndex], i2: IndicesOf[AxisIndices]): Tensor[DType, (Tt2,Td2,GatheredShape[S, AxisIndex, AxisIndices])] = onnx.GatherV13("gather", indicesOf[AxisIndex], arr, indicesOf[AxisIndices])
-  extension[DType <: NumericSupported : ClassTag : Numeric, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: Tensor[DType, (Tt,Td,S)]) def flatten[Tt2 <: TensorTypeDenotation, AxisIndex <: Index ::: INil](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[FlattenedShape[S, AxisIndex]], i: IndicesOf[AxisIndex]): Tensor[DType, (Tt2,Td,FlattenedShape[S, AxisIndex])] = onnx.FlattenV13("flatten", indicesOf[AxisIndex], arr)
+  extension[DType <: NumericSupported : ClassTag : Numeric, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: Tensor[DType, (Tt,Td,S)]) def flatten_[Tt2 <: TensorTypeDenotation, AxisIndex <: Index ::: INil](using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[FlattenedShape[S, AxisIndex]], i: IndicesOf[AxisIndex]): Tensor[DType, (Tt2,Td,FlattenedShape[S, AxisIndex])] = onnx.FlattenV13("flatten", indicesOf[AxisIndex], arr)
 
   //Note: currently fixed mode, constant value
 
@@ -146,7 +147,7 @@ given NDArrayOps[Tensor] with {
   extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def squeeze[Tt1 <: TensorTypeDenotation, Axes <: Indices](using tt: ValueOf[Tt1], td: TensorShapeDenotationOf[KeepOrReduceDimDenotations[Td,Axes,false]], s: ShapeOf[KeepOrReduceDims[S,Axes,false]], i: IndicesOf[Axes]): Tensor[DType, Tuple3[Tt1,KeepOrReduceDimDenotations[Td,Axes,false],KeepOrReduceDims[S,Axes,false]]] = onnx.SqueezeV13("squeeze",Some(indicesOf[Axes]),arr)
   extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def unsqueeze[Tt1 <: TensorTypeDenotation, Axes <: Indices](using tt: ValueOf[Tt1], td: TensorShapeDenotationOf[Td], s: ShapeOf[UnsqueezeShape[S,Axes]], i: IndicesOf[Axes]): Tensor[DType, Tuple3[Tt1,Td,UnsqueezeShape[S,Axes]]] = onnx.UnsqueezeV13("unsqueeze",Some(indicesOf[Axes]),arr)
 
-  extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def rank: Int = arr.shape.size
+  extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def rank: IO[Int] = Tensor.shape(arr).map(x => x.size)
 
   extension[DType <: NumericSupported : ClassTag: Numeric, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: Tensor[DType, (Tt,Td,S)]) def unary_- (using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): Tensor[DType, (Tt,Td,S)] = onnx.NegV13("neg", arr)
 

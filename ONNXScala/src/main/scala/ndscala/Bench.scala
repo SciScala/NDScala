@@ -1,6 +1,6 @@
 package org.sciscala.ndscala
 
-object Bench extends App{
+object Bench extends cats.effect.IOApp{
 
 import scala.language.postfixOps
 import scala.collection.immutable.ArraySeq
@@ -14,6 +14,10 @@ import scala.util.Random
 import ONNXScalaOps._
 import io.kjaer.compiletime._
 import org.emergentorder.compiletime._
+import cats.effect.unsafe.implicits.global
+import cats.implicits._
+
+def run(args: List[String]) = {
 
 //Note: Allocation takes quite a while (on Java 11); works fine on Java 14+
 val thisRandom = new Random(42)
@@ -66,14 +70,25 @@ def train = {
       
       val w0Upd = w0 + (((x.transpose).matmul(l1Delta))) //*moreLrs)
       val w1Upd = w1 + (((l1.transpose).matmul(l2Delta))) //*lrs)
-      (w0Upd, w1Upd)
+ //     (w0Upd.unsafeRunSync(), w1Upd.unsafeRunSync())
+
+      val finalOut = for{
+        w00 <- w0Upd
+        w11 <- w1Upd
+      } yield((w00, w11))
+
+      finalOut
 }
-val before = System.nanoTime; for (j <- 0 until iters) {
-  val result = train
-}; val after = System.nanoTime
 
-println(after-before)
+val result = (0 until iters).map(x => train).toList.sequence
 
+for {
+  before <- cats.effect.IO.pure{System.nanoTime}
+  r <- result
+  after <- cats.effect.IO.pure{System.nanoTime}
+  printed <- cats.effect.IO.println(after-before).as(r)
+} yield cats.effect.ExitCode.Success
+}
 }
 
 //For dex/ futhark comparison
