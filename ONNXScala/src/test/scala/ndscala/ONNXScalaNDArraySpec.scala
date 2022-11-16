@@ -230,30 +230,29 @@ type TD = "TensorShapeDenotation" ##: TSNil
   //FIXME: Slice fails at runtime if indices are wrong sizes
   //TODO
   //Will work when Slice is fixed
-  /*
-  "Tensor" should "fail to compile slice when indices out of range" in {
+  //Still broken, but bounds on squeeze below are working
+ /* 
+  "Tensor should fail to compile slice when indices out of range" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
-    assertTypeError("arr.slice[TT, TD, 2 #: SNil, 0 ::: INil, 11 ::: INil]")
+    assertTypeError("arr.slice[TT, 0 ::: INil, 11 ::: INil]")
   }
 
-  "Tensor" should "fail to compile slice when indices negative" in {
+  "Tensor should fail to compile slice when indices negative" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
-    assertTypeError("arr.slice[TT, TD, 2 #: SNil, 0 ::: INil, 11 ::: INil]")
+    assertTypeError("arr.slice[TT, -11 ::: INil, 3 ::: INil]")
   }
-  */
+*/
   "Tensor should squeeze" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
     doAssert((arr.squeeze[TT, 0 ::: INil]) ==== expectedResult)
   }
  
-  /*
-  "Tensor" should "fail to compile squeeze when indices out of range" in {
+  "Tensor should fail to compile squeeze when indices out of range" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
-    arr.squeeze[TT, 8 ::: INil]
-    //assertTypeError("") 
+    assertTypeError("arr.squeeze[TT, 8 ::: INil]")
   }
-*/
+
   "Tensor should unsqueeze" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
     val expectedResult = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
@@ -636,6 +635,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr % Tensor(Array(40, 40),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)) ==== Tensor(Array(2,4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
   }
 
+  //TODO: Fix: Multiple asserts need to be chained together in IO
   "Tensor should gt" in {
     val arr = Tensor(Array(42, 84),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val result = (arr > Tensor(Array(42, 80),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil))
