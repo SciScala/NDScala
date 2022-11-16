@@ -18,7 +18,7 @@ lazy val core = (crossProject(JSPlatform, JVMPlatform) //, NativePlatform)
   .crossType(CrossType.Pure) in file("core"))
   .settings(
     name := "ndscala-core",
-    scalacOptions += "-release:19",
+//    scalacOptions += "-release:19",
     scalacOptions += "-source:3.2",
     resolvers += Resolver.mavenLocal,
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
@@ -28,6 +28,9 @@ lazy val core = (crossProject(JSPlatform, JVMPlatform) //, NativePlatform)
 //  libraryDependencies += "io.kjaer" % "tf-dotty-compiletime" % "0.0.0+134-f1f8d0ba+20201020-1123-SNAPSHOT",
 //    libraryDependencies += "io.kjaer" % "tf-dotty-compiletime_0.27" % "0.0.0+134-f1f8d0ba+20201020-1123-SNAPSHOT",
 //    libraryDependencies += scalaTest % Test,
+   )
+   .jsSettings(
+   scalaJSStage := FullOptStage
    )
 lazy val onnxscala = (crossProject(JSPlatform, JVMPlatform) //, NativePlatform)
   .crossType(CrossType.Pure) in file("ONNXScala"))
@@ -40,7 +43,7 @@ lazy val onnxscala = (crossProject(JSPlatform, JVMPlatform) //, NativePlatform)
     libraryDependencies += ("org.typelevel" %%% "spire" % "0.18.0"),
     libraryDependencies += "org.emergent-order" %%% "onnx-scala-backends" % "0.17.0",
     libraryDependencies += ("org.scalatest" %%% "scalatest" % scalaTestVersion) % Test,
-     libraryDependencies += "org.typelevel" %%% "cats-effect-testing-scalatest" % "1.4.0" % Test //"1.5-852166f-SNAPSHOT" % Test
+     libraryDependencies += "org.typelevel" %%% "cats-effect-testing-scalatest" % "1.5.0" % Test
 //    libraryDependencies += "org.bytedeco" % "dnnl-platform" % "1.6.4-1.5.5-SNAPSHOT",
 //    libraryDependencies += "com.github.rssh" %% "dotty-cps-async" % "0.2.1-RC1",
 //    libraryDependencies += scalaTest % Test
@@ -52,8 +55,9 @@ lazy val onnxscala = (crossProject(JSPlatform, JVMPlatform) //, NativePlatform)
      scalaJSUseMainModuleInitializer                := true, // , //Testing
      Compile / npmDependencies += "onnxruntime-node" -> "1.13.1",
      Compile / npmDependencies += "onnxruntime-common" -> "1.13.1",
-     libraryDependencies += "org.typelevel" %%% "cats-effect-testing-scalatest" % "1.4.0" % Test, //"1.5-852166f-SNAPSHOT" % Test,
-     stOutputPackage := "org.emergentorder.ndscala"
+     libraryDependencies += "org.typelevel" %%% "cats-effect-testing-scalatest" % "1.5.0" % Test,
+     stOutputPackage := "org.emergentorder.ndscala",
+     scalaJSStage := FullOptStage
    )
    .jsConfigure { project => project.enablePlugins(ScalablyTypedConverterPlugin) } //For distribution as a library use: ScalablyTypedConverterGenSourcePlugin
 

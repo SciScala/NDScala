@@ -75,7 +75,7 @@ def train = {
       val finalOut = for{
         w00 <- w0Upd
         w11 <- w1Upd
-      } yield((w00, w11))
+      } yield((w00.toString, w11.toString))
 
       finalOut
 }

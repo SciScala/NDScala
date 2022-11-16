@@ -300,9 +300,10 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val arr = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 2 #: SNil)
     val other = Tensor(Array(42.0, 84.0),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 1 #: SNil)
     val bias = Tensor(Array(42.0), valueOf[TT], "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
-    val expectedResult = Tensor(Array(9748.200211286545), valueOf[TT], "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
+    val expectedResult = Tensor(Array(8862.886347055435), valueOf[TT], "TensorShapeDenotation" ##: TSNil, 1 #: 1 #: SNil)
   
     val in = arr.gemm(other, Some(bias))
+
     val result = in ==== expectedResult
     doAssert(result)
   }
@@ -310,9 +311,10 @@ type TD = "TensorShapeDenotation" ##: TSNil
   "Tensor should lrn" in {
     //NCHW tensor, 3 channels, 1 pixel
     val arr = Tensor(Array(-1.0f, 0.0f, 1.0f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: 1 #: 1 #: SNil)
-    val expectedResult = Tensor(Array(-0.9309912323951721f, 0.0f, 0.9309912323951721f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: 1 #: 1 #: SNil)
+    val expectedResult = Tensor(Array(-0.9999f, 0.0f, -0.9999f),"TensorTypeDenotation", "TensorShapeDenotation" ##: "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: 1 #: 1 #: SNil)
 
     val in = arr.lrn(size=3)
+
     doAssert(in ==== expectedResult)
   }
 
@@ -585,7 +587,7 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
 
     val in = arr.celu()
-    doAssert(in ==== Tensor(Array(-0.40178993344306946f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+    doAssert(in ==== Tensor(Array(-0.39347833f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor should celu with alpha" in {
@@ -599,7 +601,8 @@ type TD = "TensorShapeDenotation" ##: TSNil
     val arr = Tensor(Array(-0.5f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil)
 
     val in = arr.elu()
-    doAssert(in ==== Tensor(Array(-0.4328162670135498f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
+
+    doAssert(in ==== Tensor(Array(-0.39350867f, 0.0f, 0.5f),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 1 #: 3 #: SNil))
   }
 
   "Tensor should elu with alpha" in {
