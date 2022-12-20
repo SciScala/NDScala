@@ -268,14 +268,13 @@ type TD = "TensorShapeDenotation" ##: TSNil
     doAssert((arr.pad[TT, 1 #: SNil, 1 #: SNil](42)) ==== expectedResult)
   }
 
-  /*
-  "Tensor" should "gather" in {
+  "Tensor should gather" in {
     val arr = Tensor(Array(1, 2, 3, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 4 #: SNil )
     val expectedResult = Tensor(Array(2, 4),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: SNil)
 
     doAssert((arr.gather[TT, TD, 0 ::: INil, 1 ::: 3 ::: INil]) ==== expectedResult)
   }
-*/
+
   "Tensor should flatten" in {
     val arr = Tensor(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 2 #: 2 #: 2 #: SNil )
     val expectedResult = Tensor(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),"TensorTypeDenotation", "TensorShapeDenotation" ##: TSNil, 2 #: 8 #: SNil)
