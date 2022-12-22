@@ -6,8 +6,10 @@ import spire.math.Numeric
 import cats.effect.IO
 import org.emergentorder.onnx.Tensors._
 //import org.emergentorder.=!=
-import io.kjaer.compiletime._
-import io.kjaer.compiletime.Shape.NumElements
+import org.emergentorder.io.kjaer.compiletime._
+import org.emergentorder.io.kjaer.compiletime.Shape.NumElements
+import org.emergentorder.io.kjaer.compiletime.Shape.Rank
+import org.emergentorder.io.kjaer.compiletime.Shape.{Reverse => ShapeReverse}
 import org.emergentorder.compiletime._
 import org.emergentorder.compiletime.TensorShapeDenotation.Reverse
 import org.emergentorder.compiletime.TensorShapeDenotation.Concat
@@ -41,8 +43,8 @@ trait NDArrayOps[SomeNDArray[_ <: AllSupported, _ <: Axes]] {
   extension [DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](arr: SomeNDArray[DType, (Tt,Td,S)]) def reshape[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](allowzero: Option[Int] = Some(0))(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S],tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1], sizeSeq: NumElements[S] =:= NumElements[S1]): SomeNDArray[DType, (Tt1,Td1,S1)]
 
   extension [DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](arr: SomeNDArray[DType, (Tt,Td,S)]) def expand[Tt1 <: TensorTypeDenotation, Td1 <: TensorShapeDenotation, S1 <: Shape](using tt1: ValueOf[Tt1], td1: TensorShapeDenotationOf[Td1], s1: ShapeOf[S1]): SomeNDArray[DType, (Tt1,Td1,S1)]
-    extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def transpose(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): SomeNDArray[DType, (Tt,Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])]
-  extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def transpose(axes: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[io.kjaer.compiletime.Shape.Reverse[S]]): SomeNDArray[DType, (Tt,Reverse[Td],io.kjaer.compiletime.Shape.Reverse[S])]
+    extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def transpose(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[ShapeReverse[S]]): SomeNDArray[DType, (Tt,Reverse[Td],ShapeReverse[S])]
+  extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def transpose(axes: Array[Int])(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Reverse[Td]], s: ShapeOf[ShapeReverse[S]]): SomeNDArray[DType, (Tt,Reverse[Td],ShapeReverse[S])]
 
   extension[DType <: FloatSupported : ClassTag: Numeric, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def round()(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[S]): SomeNDArray[DType, (Tt,Td,S)]
 
@@ -60,7 +62,7 @@ extension[DType <: NumericSupported : ClassTag : Numeric, Tt <: TensorTypeDenota
 
 
   extension[DType <: NumericSupported : ClassTag : Numeric, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def pad[Tt2 <: TensorTypeDenotation, AxesBefore <: Shape, AxesAfter <: Shape](constantValue: DType)(using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td], s2: ShapeOf[PaddedShape[S,AxesBefore,AxesAfter]], i: ShapeOf[AxesBefore], i2: ShapeOf[AxesAfter]): SomeNDArray[DType, (Tt2,Td,PaddedShape[S,AxesBefore,AxesAfter])]
-  extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def shape[Tt2 <: TensorTypeDenotation, Td2 <: TensorShapeDenotation](end: Option[Int] = None, start: Option[Int] = Some(0))(using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td2], s2: ShapeOf[io.kjaer.compiletime.Shape.Rank[S] & Dimension #: SNil]): SomeNDArray[Long, (Tt2,Td2,io.kjaer.compiletime.Shape.Rank[S] & Dimension #: SNil)]
+  extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape]  (arr: SomeNDArray[DType, (Tt,Td,S)]) def shape[Tt2 <: TensorTypeDenotation, Td2 <: TensorShapeDenotation](end: Option[Int] = None, start: Option[Int] = Some(0))(using tt: ValueOf[Tt2], td: TensorShapeDenotationOf[Td2], s2: ShapeOf[Rank[S] & Dimension #: SNil]): SomeNDArray[Long, (Tt2,Td2,Rank[S] & Dimension #: SNil)]
 
 
   extension[DType <: Supported : ClassTag, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape] (arr: SomeNDArray[DType, (Tt,Td,S)]) def squeeze[Tt1 <: TensorTypeDenotation, Axes <: Indices](using tt: ValueOf[Tt1], td: TensorShapeDenotationOf[KeepOrReduceDimDenotations[Td,Axes,false]], s: ShapeOf[KeepOrReduceDims[S,Axes,false]], i: IndicesOf[Axes]): SomeNDArray[DType, Tuple3[Tt1,KeepOrReduceDimDenotations[Td,Axes,false],KeepOrReduceDims[S,Axes,false]]]

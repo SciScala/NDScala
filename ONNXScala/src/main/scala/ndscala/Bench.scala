@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 import ONNXScalaOps._
-import io.kjaer.compiletime._
+import org.emergentorder.io.kjaer.compiletime._
 import org.emergentorder.compiletime._
 import cats.effect.unsafe.implicits.global
 import cats.implicits._
