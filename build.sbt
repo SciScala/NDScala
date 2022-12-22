@@ -38,7 +38,7 @@ lazy val onnxscala = (crossProject(JSPlatform, JVMPlatform) //, NativePlatform)
   .settings(
 //    javaOptions += "-Dcats.effect.stackTracingMode=full -Dcats.effect.traceBufferSize=1024",
     name := "ndscala-onnx-scala",
-    scalacOptions += "-release:19",
+//    scalacOptions += "-release:19",
     scalacOptions += "-source:3.2",
     libraryDependencies += ("org.typelevel" %%% "spire" % "0.18.0"),
     libraryDependencies += "org.emergent-order" %%% "onnx-scala-backends" % "0.17.0",
